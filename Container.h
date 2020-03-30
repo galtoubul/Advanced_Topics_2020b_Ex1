@@ -1,20 +1,20 @@
-#include <string>
+#include <cstring>
 
 class Container{
     int weight;
-    std::string destination;
-    std::string id;
+    const char* destination;
+    const char* id;
     bool futile;
     int floorNum;
 
 public:
-    Container(int _weight, std::string _destination, std::string _id, bool futile, int _floorNum = -1);
+    Container(int _weight, char* _destination, char* _id, bool futile, int _floorNum = -1);
 
     int getWeight ();
 
-    std::string getDestination ();
+    const char* getDestination ();
 
-    std::string getId ();
+    const char* getId ();
 
     bool isFutile ();
 

@@ -1,17 +1,17 @@
 #include "Container.h"
 
-Container::Container(int _weight, std::string _destination, std::string _id, bool _futile, int _floorNum) :
+Container::Container(int _weight, char* _destination, char* _id, bool _futile, int _floorNum) :
         weight(_weight), destination(_destination), id(_id), futile(_futile), floorNum(_floorNum) {};
 
 int  Container::getWeight (){
     return weight;
 }
 
-std::string Container:: getDestination (){
+const char* Container:: getDestination (){
     return destination;
 }
 
-std::string Container:: getId (){
+const char* Container:: getId (){
     return id;
 }
 
