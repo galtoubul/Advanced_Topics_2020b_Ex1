@@ -1,4 +1,6 @@
 #include <iostream>
+#include <cstdlib>
+
 #include "ShipPlan.h"
 
 int main() {
@@ -21,5 +23,5 @@ int main() {
     shipPlan1->getContainers()[0][0].push(container1);
     std::cout << shipPlan1->getContainers()[0][0].top() << std::endl;
 
-    return 0;
+    return EXIT_SUCCESS;
 }
