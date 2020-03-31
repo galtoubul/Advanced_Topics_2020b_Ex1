@@ -1,4 +1,5 @@
 #include <cstring>
+#include <iostream>
 
 class Container{
     int weight;
@@ -8,7 +9,7 @@ class Container{
     int floorNum;
 
 public:
-    Container(int _weight, char* _destination, char* _id, bool futile, int _floorNum = -1);
+    Container(int _weight, const char* _destination, const char* _id, bool futile, int _floorNum = -1);
 
     int getWeight ();
 
@@ -19,5 +20,7 @@ public:
     bool isFutile ();
 
     int  getFloorNum ();
+
+    friend std::ostream&operator<<(std::ostream& out, const Container& container);
 
     };
