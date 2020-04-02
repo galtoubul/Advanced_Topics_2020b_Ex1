@@ -14,7 +14,7 @@ const char* Container:: getDestination (){
 const char* Container:: getId (){
     return id;
 }
-// try
+
 bool Container:: isFutile (){
     return futile;
 }
