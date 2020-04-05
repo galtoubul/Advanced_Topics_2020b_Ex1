@@ -1,15 +1,14 @@
-#include <stack>
 #include <iostream>
 #include "Container.h"
 
 class ShipPlan{
     int floorNum = 0;
-    int maxHeight = 0;
-    int maxWidth = 0;
-    std::stack<Container*>** containers = nullptr;
+    int dimX = 0;
+    int dimY = 0;
+    Container*** containers = nullptr; //check init thing
 
 public:
-    ShipPlan(int _floorNum, int _maxHeight, int _maxWidth);
+    ShipPlan(int _numFloor, int _dimX, int _dimY);
 
     ShipPlan(const ShipPlan& other);
 
@@ -17,11 +16,12 @@ public:
 
     int getFloorNum();
 
-    int getMaxHeight();
+    int getPivotXDimension();
 
-    int getMaxWidth();
+    int getPivotYDimension();
 
-    std::stack<Container*>**& getContainers ();
+    Container*** getContainers();
+ //   std::stack<Container*>**& getContainers ();
 
 //    friend std::ostream&operator<<(std::ostream& out, const ShipPlan& shipPlan);
 

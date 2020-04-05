@@ -1,25 +1,30 @@
 #include "ShipPlan.h"
 
-ShipPlan::ShipPlan(int _floorNum, int _maxHeight, int _maxWidth) :
-        floorNum(_floorNum), maxHeight(_maxHeight), maxWidth(_maxWidth)  {
-    containers = new std::stack<Container*>* [maxHeight];
-    for (int i = 0; i < maxWidth; i++)
-        containers[i] = new std::stack<Container*> [maxWidth];
+ShipPlan::ShipPlan(int _floorNum, int _dimX, int _dimY) :
+        floorNum(_floorNum), dimX(_dimX), dimY(_dimY)  {
+    Container*** containers = 0;
+    containers = new Container** [dimX];
+            for (int i = 0; i<dimX; i++){
+                containers[i] = new Container* [dimY];
+                for (int j = 0; j<dimY; j++){
+                    containers[i][j] = new Container(0, nullptr, nullptr, true);
+                }
+            }
 }
 
 int ShipPlan::getFloorNum(){
     return floorNum;
 }
 
-int ShipPlan::getMaxHeight(){
-    return maxHeight;
+int ShipPlan::getPivotXDimension(){
+    return dimX;
 }
 
-int ShipPlan::getMaxWidth(){
-    return maxWidth;
+int ShipPlan::getPivotYDimension(){
+    return dimY;
 }
 
-std::stack<Container*>**& ShipPlan::getContainers() { /*TODO: make the returned value const*/
+Container*** ShipPlan::getContainers() { /*TODO: make the returned value const*/
     return containers;
 }
 
@@ -31,16 +36,24 @@ ShipPlan& ShipPlan::operator=(const ShipPlan& other){
     if (this != &other){
         delete containers;
         floorNum = other.floorNum;
-        maxHeight = other.maxHeight;
-        maxWidth = other.maxWidth;
+        dimX = other.dimX;
+        dimY = other.dimY;
 
-        for(int i = 0; i < this->maxHeight; i++) {
-            for (int j = 0; j < this->maxHeight; j++) {
-                this->containers[i][j] = other.containers[i][j]; // TODO: is stack default copy is a deep copy?
+        for(int i = 0; i < this->dimX; i++) {
+            for (int j = 0; j < this->dimY; j++) {
+                for (int h = 0; h < this->floorNum; h++){
+                    containers[i][j][h] = other.containers[i][j][h];
+                }
             }
         }
     }
     return *this;
+}
+
+ShipPlan::~ShipPlan() {
+    for (int i = 0; i < dimX; ++i)
+        for (int j = 0; j < dimY; ++j)
+            delete[] containers[i][j];
 }
 
 //std::ostream&operator<<(std::ostream& out, const ShipPlan& shipPlan){
@@ -51,9 +64,3 @@ ShipPlan& ShipPlan::operator=(const ShipPlan& other){
 //    }
 //}
 
-
-ShipPlan::~ShipPlan() {
-    for (int i = 0; i < maxHeight; i++)
-        delete[] containers[i];
-    delete [] containers;
-}
