@@ -1,10 +1,8 @@
 #include <cstdlib>
-#include "ShipPlan.h"
-#include "ShipRoute.h"
-#include "Parser.h"
 #include <vector>
 #include <tuple>
-//#include "Port.h"
+#include "Simulation.h"
+#include "Parser.h"
 using std::cout;
 using std::endl;
 
@@ -34,22 +32,37 @@ int main() {
     cout << "----------------------------------------------------------" << '\n';
 
     shipPlan1.insertContainer(container1,0,0,0);
-    cout << shipPlan1.getContainers()[0][0][0]<< endl;
+    cout << *shipPlan1.getContainers()[0][0][0]<< endl;
 
     cout << "----------------------------------------------------------" << '\n';
 
     ifstream inputFile ("C:\\example.txt");
     std::vector<std::tuple<int, int, int>> vec = parseShipPlan(inputFile);
     for (int i = 0; i < vec.size(); i++){
-        cout << std::get<0>(vec[i]) << endl;
-        cout << std::get<1>(vec[i]) << endl;
-        cout << std::get<2>(vec[i]) << endl;
-
+        cout << "shipPlan [" << i << "][0] = " <<std::get<0>(vec[i]) << ", ";
+        cout << "shipPlan [" << i << "][1] = " <<std::get<1>(vec[i]) << ", ";
+        cout << "shipPlan [" << i << "][2] = " <<std::get<2>(vec[i]) << endl;
     }
-//
-//    Port port = new  Port("asdf", vec);
-//    std::cout << port.getPortId() << std::endl;
-//    std::cout << port.getContainersToLoad() << std::endl;
+
+    cout << "----------------------------------------------------------" << '\n';
+
+    string shipPlanFileName = "C:\\example.txt";
+    string shipRouteFileName = "C:\\example2.txt";
+    initSimulation(shipPlanFileName, shipRouteFileName);
+
+    cout << "----------------------------------------------------------" << '\n';
+
+    Container* cont1 = new Container(25, "X", "fiufie");
+    Container* cont2 = new Container(35, "Y", "dsjhdvsu");
+    vector<Container*> vec2;
+    vec2.push_back(cont1);
+    vec2.push_back(cont2);
+    Port port("asdf");
+    port.addContainersToLoad(vec2);
+    cout << port.getPortId() << endl;
+
+    free(cont1);
+    free(cont2);
 
     return EXIT_SUCCESS;
 }

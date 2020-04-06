@@ -2,27 +2,19 @@
 #include <string>
 #include <vector>
 #include "ShipRoute.h"
+using std::list;
 
-ShipRoute::ShipRoute(int _portNum, std::vector<std::string> _portVec) :  portNum(_portNum),  portVec(_portVec){
- int currPortNum = -1;   //-1 = before first port
-}
-//validity check port name is where we get the input
+ShipRoute::ShipRoute(list<Port> _portList) : portList(_portList) {}
 
-int ShipRoute::getCurrentPortNumInRoute(){
-    return currPortNum;
-}
+//TODO: validity check port name is where we get the input
 
-std::string ShipRoute::getNextPort(){
-    return portVec[currPortNum + 1];
-}
-
-int ShipRoute::getPortNum(){
-    return portNum;
+Port& ShipRoute::getNextPort(){
+    return portList.front();
 }
 
 std::ostream&operator<<(std::ostream& out, const ShipRoute& shipRoute) {
     out << "route: ";
-    for (auto const& p : shipRoute.portVec)
+    for (auto const& p : shipRoute.portList)
         out << p << ' ';
 }
 

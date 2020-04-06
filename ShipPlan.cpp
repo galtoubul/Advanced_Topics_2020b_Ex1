@@ -2,7 +2,7 @@
 
 ShipPlan::ShipPlan(int _dimX, int _dimY, int _floorNum) :
         dimX(_dimX), dimY(_dimY), floorNum(_floorNum),
-        containers(dimX, VVC(dimY, VC (floorNum))) {}
+        containers(dimX, VVC(dimY, VC (floorNum, nullptr))) {}
 
 int ShipPlan::getFloorNum(){
     return floorNum;
@@ -21,7 +21,22 @@ const VVVC& ShipPlan::getContainers() {
 }
 
 void ShipPlan::insertContainer (Container newContainer, int x, int y, int floorNum){
-    this->containers[x][y][floorNum] = newContainer;
+    this->containers[x][y][floorNum] = new Container(newContainer);
+}
+
+void ShipPlan::removeContainer (int x, int y, int floorNum){
+    free(this->containers[x][y][floorNum]);
+}
+
+void ShipPlan::printShipPlan () const {
+    for (int i = 0; i < containers.size(); ++i) {
+        for (int j = 0; j < containers[0].size(); ++j) {
+            for (int k = 0; k <containers[0][0].size() ; ++k) {
+                if (containers[i][j][k] != nullptr)
+                    std::cout << "containers[" << i << "][" << j << "][" << k << "] = " << *containers[i][j][k]<< std::endl;
+            }
+        }
+    }
 }
 
 //ShipPlan& ShipPlan::operator=(const ShipPlan& other){

@@ -1,20 +1,19 @@
 #include <iostream>
 #include <string>
-#include <vector>
+#include <list>
+#include "Port.h"
+using std::list;
+using std::vector;
 
 class ShipRoute{
-    int portNum;
-    std::vector<std::string> portVec;
-    int currPortNum;
+    list<Port> portList;
 
 public:
-    ShipRoute(int _portNum, std::vector<std::string> _portVec);
-    std::string getNextPort();
-    int getPortNum();
-    int getCurrentPortNumInRoute();
+    ShipRoute(list<Port> _portList);
+
+    Port& getNextPort();
 
     friend std::ostream&operator<<(std::ostream& out, const ShipRoute& shipRoute);
-
 
 };
 

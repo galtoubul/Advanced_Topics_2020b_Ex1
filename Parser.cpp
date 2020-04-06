@@ -1,12 +1,14 @@
 #include <sstream>
 #include <string>
 #include <iostream>
+#include "Port.h"
 #include "Parser.h"
 using std::string;
 using std::cout;
 using std::vector;
 using std::tuple;
 using std::endl;
+using std::list;
 
 template <typename Out>
 void split(const string &s, char delim, Out result) {
@@ -30,6 +32,8 @@ vector<tuple<int, int, int>> parseShipPlan(ifstream& inputFile) {
     if (inputFile.is_open()){
         while (getline(inputFile,line)){
             vector<string> temp = split(line, ',');
+            if (temp[0][0] == '#')
+                continue;
             if (temp.size() != 3)
                 std::cout << "error" << std::endl;
             else{
@@ -58,3 +62,31 @@ vector<tuple<int, int, int>> parseShipPlan(ifstream& inputFile) {
 
     return shipPlan;
 }
+
+list<Port> parsePortsList (ifstream& inputFile){
+    string line;
+    list<Port> portsList;
+    if (inputFile.is_open()){
+        while (getline(inputFile,line)){
+             //TODO: validate
+            portsList.push_back(Port(line));
+        }
+        inputFile.close();
+    }
+    else cout << "Unable to open file";
+
+    return portsList;
+}
+
+//vector<string> parseShipRoute (ifstream& inputFile){
+//    string line;
+//    vector<string> shipRoute;
+//    if (inputFile.is_open()){
+//        while (getline(inputFile,line))
+//            shipRoute.push_back(line);
+//        inputFile.close();
+//    }
+//    else cout << "Unable to open file";
+//
+//    return shipRoute;
+//}

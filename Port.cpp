@@ -1,13 +1,17 @@
 #include "Port.h"
+using std::vector;
 
-Port::Port(char* _portId, std::vector<Container> _containersToLoad) :
-            id(_portId), containersToLoad(_containersToLoad){};
+Port::Port(string _portId) : id(_portId){};
 
-char* Port::getPortId() {
+string Port::getPortId() {
     return id;
 }
 
-std::vector<Container> Port::getContainersToLoad() {
+void Port::addContainersToLoad(vector<Container*> _containersToLoad){
+    containersToLoad = _containersToLoad;
+}
+
+vector<Container*> Port::getContainersToLoad() {
     return containersToLoad;
 }
 

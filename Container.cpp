@@ -4,10 +4,10 @@ Container::Container(int _weight, string _destination, string _id, bool _futile,
         weight(_weight), destination(_destination), id(_id), futile(_futile), floorNum(_floorNum) {}
 
 Container::Container() :
-    weight(0), destination(""), id(""), futile(false), floorNum(-1) {}
+        weight(0), destination(""), id(""), futile(true), floorNum(-1) {}
 
 Container::Container (const Container& other) :
-    weight(other.weight), destination(other.destination), id(other.id), futile(other.futile), floorNum(other.floorNum) {}
+        weight(other.weight), destination(other.destination), id(other.id), futile(other.futile), floorNum(other.floorNum) {}
 
 int  Container::getWeight (){
     return weight;
@@ -34,7 +34,10 @@ void Container::setDestination (string newDestination){
 }
 
 std::ostream&operator<<(std::ostream& out, const Container& container){
-    out << "id: " << container.id << ", destination: " << container.destination << ", weight: " << container.weight;
+    if(container.futile)
+        out << "futile container";
+    else
+        out << "id: " << container.id << ", destination: " << container.destination << ", weight: " << container.weight;
 }
 
 

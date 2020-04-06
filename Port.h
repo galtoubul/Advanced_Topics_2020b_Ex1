@@ -1,17 +1,22 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "Container.h"
+class Container;
+using std::string;
+using std::vector;
 
 class Port {
-    char* id;
-    std::vector<Container> containersToLoad;
+    string id;
+    vector<Container*> containersToLoad;
+
 public:
-    Port(char* _portId, std::vector<Container> _containersToLoad);
+    Port(string _portId);
 
-    char* getPortId();
+    string getPortId();
 
-    std::vector<Container>getContainersToLoad();
+    void addContainersToLoad(vector<Container*> _containersToLoad);
+
+    vector<Container*>getContainersToLoad();
 
     friend std::ostream&operator<<(std::ostream& out, const Port& port);
 

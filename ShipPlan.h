@@ -2,9 +2,9 @@
 #include <vector>
 #include "Container.h"
 using std::vector;
-typedef vector<Container> VC;
-typedef vector<vector<Container>> VVC;
-typedef vector<vector<vector<Container>>> VVVC;
+typedef vector<Container*> VC;
+typedef vector<vector<Container*>> VVC;
+typedef vector<vector<vector<Container*>>> VVVC;
 
 class ShipPlan{
     int dimX = 0;
@@ -28,6 +28,11 @@ public:
     const VVVC& getContainers();
 
     void insertContainer (Container newContainer, int x, int y, int floorNum);
+
+    void removeContainer (int x, int y, int floorNum);
+
+    void printShipPlan () const;
+
 
  //   std::stack<Container*>**& getContainers ();
 
