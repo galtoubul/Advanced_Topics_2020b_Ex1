@@ -1,18 +1,23 @@
 #include <iostream>
+#include <vector>
 #include "Container.h"
+using std::vector;
+typedef vector<Container> VC;
+typedef vector<vector<Container>> VVC;
+typedef vector<vector<vector<Container>>> VVVC;
 
 class ShipPlan{
-    int floorNum = 0;
     int dimX = 0;
     int dimY = 0;
-    Container*** containers = nullptr; //check init thing
+    int floorNum = 0;
+    VVVC containers;
 
 public:
-    ShipPlan(int _numFloor, int _dimX, int _dimY);
+    ShipPlan(int _dimX, int _dimY, int _numFloor);
 
-    ShipPlan(const ShipPlan& other);
+    ShipPlan(const ShipPlan& other) = delete;
 
-    ShipPlan& operator=(const ShipPlan& other);
+    ShipPlan& operator=(const ShipPlan& other) = delete;
 
     int getFloorNum();
 
@@ -20,10 +25,13 @@ public:
 
     int getPivotYDimension();
 
-    Container*** getContainers();
+    const VVVC& getContainers();
+
+    void insertContainer (Container newContainer, int x, int y, int floorNum);
+
  //   std::stack<Container*>**& getContainers ();
 
 //    friend std::ostream&operator<<(std::ostream& out, const ShipPlan& shipPlan);
 
-    ~ShipPlan();
+   // ~ShipPlan();
 };

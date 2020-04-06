@@ -1,25 +1,33 @@
-#include <cstring>
+#include <string>
 #include <iostream>
+
+using std::string;
 
 class Container{
     int weight;
-    const char* destination;
-    const char* id;
+    string destination;
+    string id;
     bool futile;
     int floorNum;
 
 public:
-    Container(int _weight, const char* _destination, const char* _id, bool futile, int _floorNum = -1);
+    Container(int _weight, string _destination, string _id, bool futile = false, int _floorNum = -1);
+
+    Container ();
+
+    Container (const Container& other);
 
     int getWeight ();
 
-    const char* getDestination ();
+    string getDestination () const;
 
-    const char* getId ();
+    string getId () const;
 
     bool isFutile ();
 
     int  getFloorNum ();
+
+    void setDestination (string newDestination);
 
     friend std::ostream&operator<<(std::ostream& out, const Container& container);
 

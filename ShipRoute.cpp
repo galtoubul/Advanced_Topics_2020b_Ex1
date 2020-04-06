@@ -1,9 +1,7 @@
-#include "ShipRoute.h"
-#include "Port.h"
 #include <iostream>
 #include <string>
 #include <vector>
-
+#include "ShipRoute.h"
 
 ShipRoute::ShipRoute(int _portNum, std::vector<std::string> _portVec) :  portNum(_portNum),  portVec(_portVec){
  int currPortNum = -1;   //-1 = before first port
@@ -15,7 +13,7 @@ int ShipRoute::getCurrentPortNumInRoute(){
 }
 
 std::string ShipRoute::getNextPort(){
-    return portVec[currPortNum+1];
+    return portVec[currPortNum + 1];
 }
 
 int ShipRoute::getPortNum(){

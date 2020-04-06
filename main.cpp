@@ -1,40 +1,55 @@
-#include <iostream>
 #include <cstdlib>
-#include <vector>
-
-
 #include "ShipPlan.h"
 #include "ShipRoute.h"
-#include "Port.h"
-
+#include "Parser.h"
+#include <vector>
+#include <tuple>
+//#include "Port.h"
+using std::cout;
+using std::endl;
 
 int main() {
-    Container* container1 = new Container (1000 , "ILASH", "051065196581", false);
-    std::cout << container1->getWeight() << std::endl;
-    std::cout << container1->getDestination() << std::endl;
-    std::cout << container1->getId() << std::endl;
-    std::cout << container1->isFutile() << std::endl;
-    std::cout << container1->getFloorNum() << std::endl;
+    Container container1(1000 , "ILASH", "051065196581", false);
+    cout << container1.getWeight() << endl;
+    cout << container1.getDestination() << endl;
+    cout << container1.getId() << endl;
+    cout << container1.isFutile() << endl;
+    cout << container1.getFloorNum() << endl;
 
-    std::cout << "----------------------------------------------------------" << '\n';
+    cout << "----------------------------------------------------------" << '\n';
 
-    ShipPlan* shipPlan1 = new ShipPlan (4, 4, 4);
-    std::cout << shipPlan1->getFloorNum() << std::endl;
-  //  std::cout << shipPlan1->getMaxHeight() << std::endl;
-  //  std::cout << shipPlan1->getMaxWidth() << std::endl;
+    auto container2(container1);
+    cout << "container2'd destination: " << container2.getDestination() << endl;
+    container1.setDestination("hello");
+    cout << "container1'd destination: " << container1.getDestination() << endl;
+    cout << "container2'd destination: " << container2.getDestination() << endl;
 
-    std::cout << "----------------------------------------------------------" << '\n';
+    cout << "----------------------------------------------------------" << '\n';
 
-    shipPlan1->getContainers()[0][0].push(container1);
-    std::cout << shipPlan1->getContainers()[0][0][0]<< std::endl;
-    std::vector<Container>* vec = new std::vector<Container> (3){};
-    vec[0] = new Container (1000 , "ABC", "123", false);
-    vec[1] = new Container (1000 , "CEE", "234", false);
-    vec[2] = new Container (1000 , "SDF", "456", false);
+    ShipPlan shipPlan1(4, 4, 4);
+    cout << shipPlan1.getFloorNum() << endl;
+    cout << shipPlan1.getPivotXDimension() << endl;
+    cout << shipPlan1.getPivotYDimension() << endl;
 
-    Port port = new  Port("asdf", vec);
-    std::cout << port.getPortId() << std::endl;
-    std::cout << port.getContainersToLoad() << std::endl;
+    cout << "----------------------------------------------------------" << '\n';
+
+    shipPlan1.insertContainer(container1,0,0,0);
+    cout << shipPlan1.getContainers()[0][0][0]<< endl;
+
+    cout << "----------------------------------------------------------" << '\n';
+
+    ifstream inputFile ("C:\\example.txt");
+    std::vector<std::tuple<int, int, int>> vec = parseShipPlan(inputFile);
+    for (int i = 0; i < vec.size(); i++){
+        cout << std::get<0>(vec[i]) << endl;
+        cout << std::get<1>(vec[i]) << endl;
+        cout << std::get<2>(vec[i]) << endl;
+
+    }
+//
+//    Port port = new  Port("asdf", vec);
+//    std::cout << port.getPortId() << std::endl;
+//    std::cout << port.getContainersToLoad() << std::endl;
 
     return EXIT_SUCCESS;
 }
