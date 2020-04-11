@@ -27,7 +27,11 @@ public:
 
     const VVVC& getContainers();
 
-    void insertContainer (Container newContainer, int x, int y, int floorNum);
+    void setContainers(int x, int y, int floor, Container* container);
+
+    //void insertContainer (Container newContainer, int x, int y, int floorNum);
+
+    void insertContainer (Container* newContainer, int x, int y, int floorNum);
 
     void removeContainer (int x, int y, int floorNum);
 

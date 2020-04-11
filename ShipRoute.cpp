@@ -12,6 +12,10 @@ Port& ShipRoute::getNextPort(){
     return portList.front();
 }
 
+list<Port> ShipRoute::getPortList(){
+    return this->portList;
+}
+
 std::ostream&operator<<(std::ostream& out, const ShipRoute& shipRoute) {
     out << "route: ";
     for (auto const& p : shipRoute.portList)

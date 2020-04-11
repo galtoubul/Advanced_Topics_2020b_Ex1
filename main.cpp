@@ -12,7 +12,7 @@ int main() {
     cout << container1.getDestination() << endl;
     cout << container1.getId() << endl;
     cout << container1.isFutile() << endl;
-    cout << container1.getFloorNum() << endl;
+   // cout << container1.getFloorNum() << endl;
 
     cout << "----------------------------------------------------------" << '\n';
 
@@ -31,7 +31,7 @@ int main() {
 
     cout << "----------------------------------------------------------" << '\n';
 
-    shipPlan1.insertContainer(container1,0,0,0);
+ //   shipPlan1.insertContainer(container1,0,0,0);
     cout << *shipPlan1.getContainers()[0][0][0]<< endl;
 
     cout << "----------------------------------------------------------" << '\n';
@@ -58,7 +58,7 @@ int main() {
     vec2.push_back(cont1);
     vec2.push_back(cont2);
     Port port("asdf");
-    port.addContainersToLoad(vec2);
+    port.addContainersToUnload(vec2);
     cout << port.getPortId() << endl;
 
     free(cont1);

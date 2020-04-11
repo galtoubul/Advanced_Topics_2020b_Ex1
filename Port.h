@@ -7,16 +7,16 @@ using std::vector;
 
 class Port {
     string id;
-    vector<Container*> containersToLoad;
+    vector<Container*> containersToUnload; // changed to unload
 
 public:
     Port(string _portId);
 
     string getPortId();
 
-    void addContainersToLoad(vector<Container*> _containersToLoad);
+    void addContainersToUnload(vector<Container*> _containersToUnload);
 
-    vector<Container*>getContainersToLoad();
+    vector<Container*>getContainersToUnload();
 
     friend std::ostream&operator<<(std::ostream& out, const Port& port);
 

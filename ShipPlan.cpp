@@ -20,8 +20,19 @@ const VVVC& ShipPlan::getContainers() {
     return this->containers;
 }
 
-void ShipPlan::insertContainer (Container newContainer, int x, int y, int floorNum){
+void ShipPlan::setContainers(int x, int y, int floor, Container* container) {
+     this->containers[x][y][floor] = container;
+}
+
+/*void ShipPlan::insertContainer (Container newContainer, int x, int y, int floorNum){
     this->containers[x][y][floorNum] = new Container(newContainer);
+}*/
+
+//new
+
+void ShipPlan::insertContainer (Container* newContainer, int x, int y, int floorNum){
+    this->containers[x][y][floorNum] = newContainer;
+    containers[x][y][floorNum]->setLocation(x,y,floorNum);
 }
 
 void ShipPlan::removeContainer (int x, int y, int floorNum){

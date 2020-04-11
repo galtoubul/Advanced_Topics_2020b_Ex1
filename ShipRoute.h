@@ -13,6 +13,9 @@ public:
 
     Port& getNextPort();
 
+    list<Port> getPortList();
+
+
     friend std::ostream&operator<<(std::ostream& out, const ShipRoute& shipRoute);
 
 };

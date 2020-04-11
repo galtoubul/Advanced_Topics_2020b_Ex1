@@ -7,15 +7,15 @@ string Port::getPortId() {
     return id;
 }
 
-void Port::addContainersToLoad(vector<Container*> _containersToLoad){
-    containersToLoad = _containersToLoad;
+void Port::addContainersToUnload(vector<Container*> _containersToUnload){ //changed to unload, same meaning?
+    containersToUnload = _containersToUnload;
 }
 
-vector<Container*> Port::getContainersToLoad() {
-    return containersToLoad;
+vector<Container*> Port::getContainersToUnload() {
+    return containersToUnload;
 }
+
 
 std::ostream&operator<<(std::ostream& out, const Port& port){
     out << "id: " << port.id;
 }
-
