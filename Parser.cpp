@@ -189,7 +189,7 @@ bool checkIfValidContainer(Container* container){
             return false;
     }
 
-    //TODO: check last digit
+    //TODO: check last digit - maybe change the validation to use regex
 }
 
 //vector<string> parseShipRoute (ifstream& inputFile){
