@@ -14,11 +14,14 @@ using std::ofstream;
 ShipPlan* shipPlan;
 ShipRoute* shipRoute;
 Port* currPort;
+int currPortI;
 
 
 void travel(string shipPlanFileName, string shipRouteFileName){
     initSimulation(shipPlanFileName, shipRouteFileName);
+    currPortI = -1;
     for (Port port : shipRoute->getPortList()){
+        currPortI++;
         currPort = &port;
         input_full_path_and_file_name = ;// find the proper file using extPortIdFromFileName
         getInstructionsForCargo(input_full_path_and_file_name, output_full_path_and_file_name); //figure out what they want the output file to be
@@ -58,7 +61,7 @@ void getInstructionsForCargo(string input_full_path_and_file_name, string output
     vector<Container*> containersAwaitingAtPort = parseContainerVecOfPort(containersAwaitingAtPortFile);
 //    string portId = extPortIdFromFileName(input_full_path_and_file_name);
     ofstream instructionsForCargoFile (output_full_path_and_file_name);
-    vector<tuple<char,string,int,int,int,int,int,int>> instructions = runAlgorithmForPort(currPort, containersAwaitingAtPort, shipPlan);
+    vector<tuple<char,string,int,int,int,int,int,int>> instructions = runAlgorithmForPort(currPort, containersAwaitingAtPort, shipPlan, shipRoute, currPortI);
     writeInstructionsToFile(instructions, instructionsForCargoFile);
 }
 

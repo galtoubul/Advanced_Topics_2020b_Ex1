@@ -15,6 +15,8 @@ std::vector<Container*> parseContainerVecOfPort (ifstream& inputFile);
 
 string extPortIdFromFileName(string input_full_path_and_file_name);
 
+bool checkIfValidPortId(string port);
+
 bool checkIfValidContainer(Container* container);
 
 void writeInstructionsToFile( vector<tuple<char,string,int,int,int,int,int,int>>& instructions, ofstream& instructionsForCargoFile);

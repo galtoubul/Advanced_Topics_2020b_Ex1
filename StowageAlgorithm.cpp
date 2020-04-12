@@ -2,6 +2,7 @@
 #include <sstream>
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include "Parser.h"
 
 using std::string;
@@ -12,19 +13,19 @@ using std::endl;
 using std::list;
 
 
-vector<tuple<char,string,int,int,int,int,int,int>> runAlgorithmForPort(Port* port, vector<Container*> containersAwaitingAtPort, ShipPlan* shipPlan){
+vector<tuple<char,string,int,int,int,int,int,int>> runAlgorithmForPort(Port* port, vector<Container*> containersAwaitingAtPort, ShipPlan* shipPlan, ShipRoute* shipRoute, int currPortI){
     vector<tuple<char,string,int,int,int,int,int,int>> instructions;
     vector<Container*> containersToUnload = port->getContainersToUnload();
     for (Container* container : containersToUnload){
         unloadToPort(container, port, &instructions, shipPlan);
     }
-    for (Container* container : containersAwaitingAtPort){
-        loadToShip(container, port, &instructions, shipPlan);
+    for (Container* container : containersAwaitingAtPort){ //TODO: give priority to containers of closer destinationd port
+        loadToShip(container, port, &instructions, shipPlan, shipRoute);
     }
     return instructions;
 }
 
-void loadToShip(Container* container, Port* port, vector<tuple<char,string,int,int,int,int,int,int>>* instructions, ShipPlan* shipPlan){
+void loadToShip(Container* container, Port* port, vector<tuple<char,string,int,int,int,int,int,int>>* instructions, ShipPlan* shipPlan, ShipRoute* shipRoute){
     if (!checkIfValidContainer(container)) {
         instructions->push_back(std::make_tuple('R', container->getId(), -1, -1, -1, -1, -1,
                                                 -1)); //TODO: check why wasn't written that R doesn't need x,y,f parameters

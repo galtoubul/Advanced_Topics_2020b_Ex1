@@ -1,9 +1,11 @@
 #include <sstream>
 #include <string>
 #include <iostream>
+#include <algorithm>
 #include "Port.h"
 #include "Parser.h"
 #include "Container.h"
+
 
 using std::string;
 using std::cout;
@@ -74,8 +76,11 @@ std::list<Port> readShipRoute(const string& full_path_and_file_name){
     list<Port> portsList;
     if (shipRouteInputFile.is_open()){
         while (getline(shipRouteInputFile,line)){
-             //TODO: validate
-            portsList.push_back(Port(line));
+            if (checkIfValidPortId(line)){ //have to be in model of: XX XXX - size 6
+                std::transform(line.begin(), line.end(), line.begin(),
+                               [](unsigned char c){ return std::toupper(c); });
+                portsList.push_back(Port(line));
+            }
         }
         shipRouteInputFile.close();
     }
@@ -83,6 +88,8 @@ std::list<Port> readShipRoute(const string& full_path_and_file_name){
 
     return portsList;
 }
+
+
 
 vector<Container*> parseContainerVecOfPort (ifstream& inputFile){
     string line;
@@ -95,9 +102,13 @@ vector<Container*> parseContainerVecOfPort (ifstream& inputFile){
             if (temp.size() != 3)
                 std::cout << "error" << std::endl;
             //TODO: validate strings
+            if (!checkIfValidPortId(temp[2]))
+                continue; //TODO: warning message / exception
             else {
                 Container *container;
                 try {
+                    std::transform(temp[2].begin(), temp[2].end(), temp[2].begin(),
+                                   [](unsigned char c){ return std::toupper(c); }); //port id to uppercase
                     container = new Container(stoi(temp[1]), temp[2], temp[0]);
                 }
                 catch (std::invalid_argument &e) {
@@ -152,6 +163,14 @@ void writeInstructionsToFile( vector<tuple<char,string,int,int,int,int,int,int>>
 string extPortIdFromFileName(string input_full_path_and_file_name){ //for finding the next file needed after checking the next port
     vector<string> temp = split(input_full_path_and_file_name, '_');
     return temp[0];
+}
+
+bool checkIfValidPortId(string port){
+    if (port.size()!=6) //have to be in model of: XX XXX - size 6
+        return false;
+    if (port.at(2) == ' ' && isalpha(port.at(0)) && isalpha(port.at(1)) && isalpha(port.at(3)) && isalpha(port.at(4)) && isalpha(port.at(5)))
+        return true;
+    return false;
 }
 
 bool checkIfValidContainer(Container* container){
