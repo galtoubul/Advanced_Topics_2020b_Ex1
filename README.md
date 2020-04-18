@@ -2,7 +2,9 @@
 #           Ex 1 - stowage model for ships & simulation to check stowage models
 by Eitan Mechtinger and Gal Toubul
 
-* All files will be at txt format and must have the suffix ".txt" 
+* All files will be at txt format and must have the suffix ".txt".
+
+* Indices at all files start from 0 and not from 1.
 
 * Conatiners awaiting at port should be at a file named:
 port symbol_number.cargo_data.txt  
