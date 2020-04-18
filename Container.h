@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 #include <tuple>
-
+#define NOT_ON_SHIP -1
 using std::string;
 using std::tuple;
 
@@ -10,22 +10,15 @@ class Container{
     string destination;
     string id;
     bool futile;
-   // int floorNum;
     tuple<int,int,int> loc;
 
 public:
-    /*Container(int _weight, string _destination, string _id, bool futile = false, int _floorNum = -1);
+    Container(int _weight = 0, const string& _destination = "", const string& _id = "", bool _futile = true,
+            int _x = NOT_ON_SHIP, int _y = NOT_ON_SHIP, int _floorNum = NOT_ON_SHIP) :
+            weight(_weight), destination(_destination), id(_id), futile(_futile), loc(std::make_tuple(_x, _y, _floorNum)) {}
 
-    Container ();
-
-    Container (const Container& other);*/
-
-
-    Container(int _weight, string _destination, string _id, bool futile = false, int _x = -1, int y=-1, int _floor = -1);
-
-    Container ();
-
-    Container (const Container& other);
+    explicit Container (const Container* other) :
+            weight(other->weight), destination(other->destination), id(other->id), futile(other->futile), loc(other->loc) {}
 
     int getWeight ();
 
@@ -35,13 +28,12 @@ public:
 
     bool isFutile ();
 
-//    int  getFloorNum ();
     tuple<int,int,int> getLocation();
 
     void setLocation(int x, int y, int floor);
 
-    void setDestination (string newDestination);
+    void setDestination (const string& newDestination);
 
-    friend std::ostream&operator<<(std::ostream& out, const Container& container);
+    friend std::ostream& operator<<(std::ostream& out, const Container& container);
 
     };

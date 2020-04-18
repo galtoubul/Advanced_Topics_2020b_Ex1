@@ -1,21 +1,21 @@
 #include "Port.h"
 using std::vector;
 
-Port::Port(string _portId) : id(_portId){};
-
-string Port::getPortId() {
-    return id;
+const string& Port::getPortId() const{
+    return this->id;
 }
 
-void Port::addContainersToUnload(vector<Container*> _containersToUnload){ //changed to unload, same meaning?
+void Port::addContainersToUnloadToPort(vector<Container*>& _containersToUnload){
     containersToUnload = _containersToUnload;
 }
 
-vector<Container*> Port::getContainersToUnload() {
+const vector<Container*>& Port::getContainersToUnload() {
     return containersToUnload;
 }
 
 
 std::ostream&operator<<(std::ostream& out, const Port& port){
     out << "id: " << port.id;
+    return out;
 }
+

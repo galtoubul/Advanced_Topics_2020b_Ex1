@@ -1,16 +1,33 @@
 #include <vector>
 #include <tuple>
 #include <string>
-#include "ShipPlan.h"
-#include "ShipRoute.h"
+#include "StowageAlgorithm.h"
 using std::vector;
 using std::tuple;
 
-void initSimulation (string shipPlanFileName, string shipRouteFileName);
+class Simulator{
+    ShipPlan shipPlan;
+    ShipRoute shipRoute;
+public:
+    Simulator () : shipPlan(), shipRoute() {}
 
-void initShipPlan (ShipPlan *shipPlan, vector<tuple<int, int, int>> vecForShipPlan);
+    void initSimulation (int algorithmNum, int travelNum);
 
-void initShipRoute (ShipRoute* shipRoute, vector<string> vecForShipRoute);
+    void getInput(const string& shipPlanFileName, const string& shipRouteFileName);
 
-void getInstructionsForCargo(string input_full_path_and_file_name, string output_full_path_and_file_name);
+    void startTravel ( Algorithm* algorithm, const string& travelName);
+
+    friend std::ostream& operator<<(std::ostream& out, const Simulator& simulator);
+
+    const ShipPlan& getShipPlan () const;
+
+    const ShipRoute& getShipRoute() const;
+
+};
+
+//void initSimulation (string shipPlanFileName, string shipRouteFileName);
+//
+//void initShipPlan (ShipPlan *shipPlan, vector<tuple<int, int, int>> vecForShipPlan);
+//
+//void initShipRoute (ShipRoute* shipRoute, vector<string> vecForShipRoute);
 

@@ -9,14 +9,14 @@ class ShipRoute{
     list<Port> portList;
 
 public:
-    ShipRoute(list<Port> _portList);
+    ShipRoute () : portList() {}
+
+    ShipRoute(list<Port>& _portList) : portList(_portList) {}
 
     Port& getNextPort();
 
-    list<Port> getPortList();
+    const list<Port>& getPortList() const;
 
-
-    friend std::ostream&operator<<(std::ostream& out, const ShipRoute& shipRoute);
-
+    friend std::ostream& operator<<(std::ostream& out, const ShipRoute& shipRoute);
 };
 

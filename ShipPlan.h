@@ -5,21 +5,24 @@ using std::vector;
 typedef vector<Container*> VC;
 typedef vector<vector<Container*>> VVC;
 typedef vector<vector<vector<Container*>>> VVVC;
+#define UNINITIALIZED -1
 
 class ShipPlan{
-    int dimX = 0;
-    int dimY = 0;
-    int floorNum = 0;
+    int dimX;
+    int dimY;
+    int floorsNum;
     VVVC containers;
 
 public:
-    ShipPlan(int _dimX, int _dimY, int _numFloor);
+    explicit ShipPlan() : dimX(UNINITIALIZED), dimY(UNINITIALIZED), floorsNum(UNINITIALIZED) {}
+
+    ShipPlan(int _dimX, int _dimY, int _floorsNum) :
+            dimX(_dimX), dimY(_dimY), floorsNum(_floorsNum),
+            containers(dimX, VVC(dimY, VC (_floorsNum, nullptr))) {}
 
     ShipPlan(const ShipPlan& other) = delete;
 
-    ShipPlan& operator=(const ShipPlan& other) = delete;
-
-    int getFloorNum();
+    int getFloorsNum();
 
     int getPivotXDimension();
 
@@ -29,18 +32,14 @@ public:
 
     void setContainers(int x, int y, int floor, Container* container);
 
-    //void insertContainer (Container newContainer, int x, int y, int floorNum);
-
-    void insertContainer (Container* newContainer, int x, int y, int floorNum);
-
     void removeContainer (int x, int y, int floorNum);
 
     void printShipPlan () const;
 
 
- //   std::stack<Container*>**& getContainers ();
+    //   std::stack<Container*>**& getContainers ();
 
 //    friend std::ostream&operator<<(std::ostream& out, const ShipPlan& shipPlan);
 
-   // ~ShipPlan();
+    // ~ShipPlan();
 };

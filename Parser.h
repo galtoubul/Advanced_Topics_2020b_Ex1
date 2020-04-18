@@ -2,21 +2,26 @@
 #include <vector>
 #include <list>
 #include <tuple>
-
+#include <string>
+#include "Common.h"
 using std::ifstream;
 using std::ofstream;
 using std::tuple;
 
-std::vector<tuple<int, int, int>> readShipPlan(const string& full_path_and_file_name);
+void readShipPlan (ShipPlan& shipPlan, const string& shipPlanFileName);
 
-std::list<Port> readShipRoute(const string& full_path_and_file_name);
+void readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName);
 
-std::vector<Container*> parseContainerVecOfPort (ifstream& inputFile);
+void readContainersAwaitingAtPort (const string& inputFileName, vector<Container*>& containersAwaitingAtPort, const ShipRoute& shipRoute);
 
 string extPortIdFromFileName(string input_full_path_and_file_name);
-
-bool checkIfValidPortId(string port);
 
 bool checkIfValidContainer(Container* container);
 
 void writeInstructionsToFile( vector<tuple<char,string,int,int,int,int,int,int>>& instructions, ofstream& instructionsForCargoFile);
+
+void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int currPortIndex, const string& travelName);
+
+
+
+

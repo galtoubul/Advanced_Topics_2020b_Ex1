@@ -1,6 +1,14 @@
 cmake_minimum_required(VERSION 3.15)
 project(Ex1)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
-add_executable(Ex1 main.cpp ShipPlan.cpp ShipPlan.h Container.cpp Container.h ShipRoute.h ShipRoute.cpp Port.cpp Port.h Parser.cpp Parser.h Simulation.cpp Simulation.h StowageAlgorithm.cpp StowageAlgorithm.h)
+add_executable(Ex1 main.cpp ShipPlan.cpp ShipPlan.h Container.cpp Container.h Port.h Port.cpp ShipRoute.h ShipRoute.cpp
+        Simulation.cpp Simulation.h StowageAlgorithm.cpp StowageAlgorithm.h main.h Common.cpp Common.h
+        WeightBalanceCalculator.cpp WeightBalanceCalculator.h Parser.cpp Parser.h)
+
+set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Wextra -Werror -pedantic-errors -DNDEBUG")
+#SET(GCC_COVERAGE_LINK_FLAGS    "-lstdc++fs")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}" )
+#SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")

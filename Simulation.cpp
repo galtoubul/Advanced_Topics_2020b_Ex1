@@ -1,69 +1,84 @@
 #include <sstream>
 #include <string>
 #include <iostream>
-
+#include <algorithm>
+#include <filesystem>
 #include "Simulation.h"
-#include "Parser.h"
-#include "StowageAlgorithm.h"
-
 using std::vector;
 using std::tuple;
 using std::get;
 using std::ofstream;
-
-ShipPlan* shipPlan;
-ShipRoute* shipRoute;
+using std::string;
+#define BEFORE_FIRST_PORT -1
+//ShipPlan* shipPlan;
+//ShipRoute* shipRoute;
 Port* currPort;
-int currPortI;
+int currPortIndex;
+//
+//
+//void travel(string shipPlanFileName, string shipRouteFileName){
+//    initSimulation(shipPlanFileName, shipRouteFileName);
+//    currPortI = -1;
+//    for (Port port : shipRoute->getPortList()){
+//        currPortI++;
+//        currPort = &port;
+//        input_full_path_and_file_name = ;// find the proper file using extPortIdFromFileName
+//        getInstructionsForCargo(input_full_path_and_file_name, output_full_path_and_file_name); //figure out what they want the output file to be
+//    }
+//}
 
-
-void travel(string shipPlanFileName, string shipRouteFileName){
-    initSimulation(shipPlanFileName, shipRouteFileName);
-    currPortI = -1;
-    for (Port port : shipRoute->getPortList()){
-        currPortI++;
+void Simulator::startTravel (Algorithm* algorithm, const string& travelName){
+    currPortIndex = BEFORE_FIRST_PORT;
+    for (Port port : this->shipRoute.getPortList()){
+        currPortIndex++;
         currPort = &port;
-        input_full_path_and_file_name = ;// find the proper file using extPortIdFromFileName
-        getInstructionsForCargo(input_full_path_and_file_name, output_full_path_and_file_name); //figure out what they want the output file to be
+
+        string inputFileName, outputFileName;
+        getPortFilesName(inputFileName, outputFileName, currPort->getPortId(), currPortIndex, travelName);
+
+        vector<Container*> containersAwaitingAtPort;
+        readContainersAwaitingAtPort(inputFileName, containersAwaitingAtPort, this->shipRoute);
+
+        std::cout << "Simulator -- There are "<< containersAwaitingAtPort.size() << " containers awaiting at port" << port.getPortId() << " :" << std:: endl;
+        for (Container* container : containersAwaitingAtPort)
+            std::cout << *container << std:: endl;
+
+        algorithm->getInstructionsForCargo(inputFileName, outputFileName);
     }
 }
 
+void Simulator::initSimulation (int algorithmNum, int travelNum){
+    string travelName = "Travel" + std::to_string(travelNum);
 
-void initSimulation (string shipPlanFileName, string shipRouteFileName){
-    vector<tuple<int, int, int>> vecForShipPlan = readShipPlan(shipPlanFileName);
-    int dimX = get<0>(vecForShipPlan[0]);
-    int dimY = get<1>(vecForShipPlan[0]);
-    int floorsNum = get<2>(vecForShipPlan[0]);
-    shipPlan = new ShipPlan(dimX, dimY, floorsNum);
-    initShipPlan(shipPlan, vecForShipPlan);
-    shipPlan->printShipPlan();
+    string shipPlanPath = travelName +  std::string(1, std::filesystem::path::preferred_separator) + "Ship Plan.txt";
+    string shipRoutePath = travelName + std::string(1, std::filesystem::path::preferred_separator) + "Route.txt";
+    this->getInput(shipPlanPath, shipRoutePath);
 
-    list<Port> portsList = readShipRoute(shipRouteFileName);
-    shipRoute = new ShipRoute(portsList);
+    Algorithm* algorithm = Algorithm::createAlgorithm(algorithmNum);
+    algorithm->getInput(shipPlanPath, shipRoutePath);
+
+    WeightBalanceCalculator calculator;
+    algorithm->setWeightBalanceCalculator(calculator);
+
+    startTravel(algorithm, travelName);
 }
 
-
-void initShipPlan (ShipPlan* shipPlan, vector<tuple<int, int, int>> vecForShipPlan){
-    int floorsNum = get<0>(vecForShipPlan[0]);
-    for (int i = 1; i < vecForShipPlan.size(); ++i) {
-        int actualFloorNum = floorsNum - get<2>(vecForShipPlan[i]);
-        for (int j = 0; j < actualFloorNum; j++){
-            /*Container futileContainer{};
-            shipPlan.insertContainer(futileContainer, get<0>(vecForShipPlan[i]), get<1>(vecForShipPlan[i]), j);*/
-            Container* futileContainer = new Container{};
-            shipPlan->insertContainer(futileContainer, get<0>(vecForShipPlan[i]), get<1>(vecForShipPlan[i]), j);
-        }
-    }
+void Simulator::getInput(const string& shipPlanFileName, const string& shipRouteFileName){
+    readShipPlan(this->shipPlan, shipPlanFileName);
+    readShipRoute(this->shipRoute, shipRouteFileName);
 }
 
-void getInstructionsForCargo(string input_full_path_and_file_name, string output_full_path_and_file_name){ //check const and &?
-    ifstream containersAwaitingAtPortFile (input_full_path_and_file_name);
-    vector<Container*> containersAwaitingAtPort = parseContainerVecOfPort(containersAwaitingAtPortFile);
-//    string portId = extPortIdFromFileName(input_full_path_and_file_name);
-    ofstream instructionsForCargoFile (output_full_path_and_file_name);
-    vector<tuple<char,string,int,int,int,int,int,int>> instructions = runAlgorithmForPort(currPort, containersAwaitingAtPort, shipPlan, shipRoute, currPortI);
-    writeInstructionsToFile(instructions, instructionsForCargoFile);
+const ShipPlan& Simulator::getShipPlan () const{
+    return this->shipPlan;
 }
 
+const ShipRoute& Simulator::getShipRoute() const{
+    return this->shipRoute;
+}
 
-
+std::ostream& operator<<(std::ostream& out, const Simulator& simulator){
+    out << "Ship Plan: " << '\n';
+    simulator.getShipPlan().printShipPlan();
+    out << simulator.getShipRoute() << '\n';
+    return out;
+}
