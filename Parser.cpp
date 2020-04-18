@@ -60,9 +60,9 @@ void readShipPlan (ShipPlan& shipPlan, const string& shipPlanFileName){
         exit(EXIT_FAILURE); //TODO: change some of exits to return/exception
     }
 
-    int dimX = get<0>(vecForShipPlan[0]); //TODO: check indeces
+    int dimX = get<2>(vecForShipPlan[0]);
     int dimY = get<1>(vecForShipPlan[0]);
-    int floorsNum = get<2>(vecForShipPlan[0]);
+    int floorsNum = get<0>(vecForShipPlan[0]);
     shipPlan = ShipPlan(dimX, dimY, floorsNum);
 
     for (size_t i = 1; i < vecForShipPlan.size(); ++i) {
