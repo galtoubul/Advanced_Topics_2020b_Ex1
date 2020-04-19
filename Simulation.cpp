@@ -13,7 +13,6 @@ using std::string;
 //ShipPlan* shipPlan;
 //ShipRoute* shipRoute;
 Port* currPort;
-int currPortIndex;
 //
 //
 //void travel(string shipPlanFileName, string shipRouteFileName){
@@ -29,26 +28,39 @@ int currPortIndex;
 
 void Simulator::startTravel (Algorithm* algorithm, const string& travelName){
     currPortIndex = BEFORE_FIRST_PORT;
-    for (Port port : this->shipRoute.getPortList()){
+    for (Port* port : this->shipRoute.getPortList()){
+
+        std::cout << "now in port" << port->getPortId() << std:: endl;
+
         currPortIndex++;
-        currPort = &port;
-
+        currPort = port;
+        algorithm -> setCurrPort(port);
         string inputFileName, outputFileName;
-        getPortFilesName(inputFileName, outputFileName, currPort->getPortId(), currPortIndex, travelName);
-
+        bool isFinalPort = (size_t)currPortIndex == this->shipRoute.getPortList().size()-1;
+        getPortFilesName(inputFileName, outputFileName, currPort->getPortId(), currPortIndex, travelName, isFinalPort);
+        if (isFinalPort){
+            std::cout << "Simulator -- There are "<< algorithm->getCurrPort()->getContainersToUnload().size() << " containers to unload to port" << algorithm->getCurrPort()->getPortId() << " :" << std:: endl;
+            for (Container* container : algorithm->getCurrPort()->getContainersToUnload())
+                std::cout << *container << std:: endl;
+            algorithm->getInstructionsForCargo("finalPort", outputFileName);
+            continue; //==break;
+        }
         vector<Container*> containersAwaitingAtPort;
-        readContainersAwaitingAtPort(inputFileName, containersAwaitingAtPort, this->shipRoute);
+        readContainersAwaitingAtPort(inputFileName, containersAwaitingAtPort);
 
-        std::cout << "Simulator -- There are "<< containersAwaitingAtPort.size() << " containers awaiting at port" << port.getPortId() << " :" << std:: endl;
+        std::cout << "Simulator -- There are "<< containersAwaitingAtPort.size() << " containers awaiting at port" << algorithm->getCurrPort()->getPortId() << " :" << std:: endl;
         for (Container* container : containersAwaitingAtPort)
             std::cout << *container << std:: endl;
-
+        std::cout << "Simulator -- There are "<< algorithm->getCurrPort()->getContainersToUnload().size() << " containers to unload to port" << algorithm->getCurrPort()->getPortId() << " :" << std:: endl;
+        for (Container* container : algorithm->getCurrPort()->getContainersToUnload())
+            std::cout << *container << std:: endl;
         algorithm->getInstructionsForCargo(inputFileName, outputFileName);
     }
 }
 
 void Simulator::initSimulation (int algorithmNum, int travelNum){
     string travelName = "Travel" + std::to_string(travelNum);
+    std::cout << "Starting travel: "<< travelName << std:: endl;
 
     string shipPlanPath = travelName +  std::string(1, std::filesystem::path::preferred_separator) + "Ship Plan.txt";
     string shipRoutePath = travelName + std::string(1, std::filesystem::path::preferred_separator) + "Route.txt";
@@ -61,6 +73,7 @@ void Simulator::initSimulation (int algorithmNum, int travelNum){
     algorithm->setWeightBalanceCalculator(calculator);
 
     startTravel(algorithm, travelName);
+    std::cout << "End of travel: "<< travelName << std:: endl;
 }
 
 void Simulator::getInput(const string& shipPlanFileName, const string& shipRouteFileName){
@@ -82,3 +95,11 @@ std::ostream& operator<<(std::ostream& out, const Simulator& simulator){
     out << simulator.getShipRoute() << '\n';
     return out;
 }
+
+/*Port* Simulator::findPortFromId(const string& portId){
+    for (Port* port : this->shipRoute.getPortList()) {
+        if (port->getPortId() == portId)
+            return port;
+    }
+    return nullptr; //won't reach there
+}*/

@@ -6,11 +6,11 @@ using std::list;
 
 //TODO: validity check port name is where we get the input
 
-Port& ShipRoute::getNextPort(){
+Port* ShipRoute::getNextPort(){
     return portList.front();
 }
 
-const list<Port>& ShipRoute::getPortList() const{
+list<Port*>& ShipRoute::getPortList(){
     return this->portList;
 }
 

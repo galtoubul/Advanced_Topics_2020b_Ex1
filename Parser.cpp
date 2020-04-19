@@ -60,8 +60,8 @@ void readShipPlan (ShipPlan& shipPlan, const string& shipPlanFileName){
         exit(EXIT_FAILURE); //TODO: change some of exits to return/exception
     }
 
-    int dimX = get<2>(vecForShipPlan[0]);
-    int dimY = get<1>(vecForShipPlan[0]);
+    int dimX = get<1>(vecForShipPlan[0]);
+    int dimY = get<2>(vecForShipPlan[0]);
     int floorsNum = get<0>(vecForShipPlan[0]);
     shipPlan = ShipPlan(dimX, dimY, floorsNum);
 
@@ -116,7 +116,7 @@ inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v")
 void readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName){
     ifstream shipRouteInputFile (shipPlanFileName);
     string line;
-    list<Port> portsList;
+    list<Port*> portsList;
     if (shipRouteInputFile.is_open()){
         while (getline(shipRouteInputFile,line)){
             if(isComment(line))
@@ -126,11 +126,24 @@ void readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName){
             checkIfValidPortId(line); //have to be in model of: XX XXX - size 6
             std::transform(line.begin(), line.end(), line.begin(), [](unsigned char c){ return std::toupper(c);});
             //the same port can't appear in two consecutive lines
-            if(line == portsList.back().getPortId()){
+            if(portsList.size() > 0 && line == portsList.back()->getPortId()){
                 cout << "Ship route input isn't valid. It contains the same port in two consecutive lines. Exiting..." << endl;
                 exit(EXIT_FAILURE);
             }
-            portsList.emplace_back(line);
+            Port* existPrevPort = nullptr;
+            for (Port* prevPort : portsList){
+                if (prevPort->getPortId() == line){
+                    existPrevPort = prevPort; //we want a pointer to the same port in memory
+                    break;
+                }
+            }
+            if (existPrevPort == nullptr){
+                Port* newPort = new Port(line); //TODO: free allocations
+                portsList.push_back(newPort);
+            }
+            else{
+                portsList.push_back(existPrevPort);
+            }
         }
         shipRouteInputFile.close();
     }
@@ -147,11 +160,11 @@ bool fileExists (const std::string& fileName) { //TODO: try to make it an inline
     return f.good();
 }
 
-void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int currPortIndex, const string& travelName){
+void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int currPortIndex, const string& travelName, bool isFinalPort){
     string str;
     inputFileName = travelName + string(1, std::filesystem::path::preferred_separator) +
                     portId + "_" + std::to_string(currPortIndex) + ".cargo_data.txt";
-    if (!fileExists(inputFileName)) {
+    if (!isFinalPort && !fileExists(inputFileName)) {
         std::cout << "There isn't any port file name matching " << inputFileName << " .Exiting..." << std::endl;
         exit (EXIT_FAILURE);
     }
@@ -175,16 +188,16 @@ void validateWeight (const string& line){
     }
 }
 
-bool portInRoute(const ShipRoute& shipRoute, string& portId){
-    for (const Port& port : shipRoute.getPortList()) {
-        if (port.getPortId() == portId)
+bool portInRoute(ShipRoute& shipRoute, string& portId){ //TODO: check the scenario of a port which was already visited
+    for (Port* port : shipRoute.getPortList()) {
+        if (port->getPortId() == portId)
             return true;
     }
     cout << portId << " is not in route" << endl;
     return false;
 }
 
-bool validateContainersAwaitingAtPortLine (vector<string>& line, const ShipRoute& shipRoute) {
+bool validateContainersAwaitingAtPortLine (vector<string>& line) {
     if (line.size() != 3) {
         cout << "Containers awaiting at port input isn't valid. Exiting..." << endl;
         exit(EXIT_FAILURE);
@@ -194,10 +207,11 @@ bool validateContainersAwaitingAtPortLine (vector<string>& line, const ShipRoute
     validateContainerId(line[0]);
     validateWeight(line[1]);
     checkIfValidPortId(line[2]);
-    return portInRoute(shipRoute, line[2]);
+ //   return portInRoute(shipRoute, line[2]);
+    return true;
 }
 
-void readContainersAwaitingAtPort (const string& inputFileName, vector<Container*>& containersAwaitingAtPort, const ShipRoute& shipRoute){
+void readContainersAwaitingAtPort (const string& inputFileName, vector<Container*>& containersAwaitingAtPort){
     ifstream inputFile (inputFileName);
     string line;
     if (inputFile.is_open()){
@@ -207,7 +221,7 @@ void readContainersAwaitingAtPort (const string& inputFileName, vector<Container
             if(isComment(line))
                 continue;
 
-            if(!validateContainersAwaitingAtPortLine(temp, shipRoute))
+            if(!validateContainersAwaitingAtPortLine(temp))
                 continue;
 
             //port id to uppercase
@@ -229,13 +243,13 @@ void writeInstructionsToFile( vector<tuple<char,string,int,int,int,int,int,int>>
         instructionsForCargoFile << get<0>(instruction) <<", " << get<1>(instruction);
         if (get<0>(instruction) == 'R'){
             instructionsForCargoFile << "\n";
-            break;
+            continue;
         }
         instructionsForCargoFile << ", " << get<2>(instruction) <<", "
                                  << get<3>(instruction) << ", "<< get<4>(instruction);
         if (get<0>(instruction) != 'M'){
             instructionsForCargoFile << "\n";
-            break;
+            continue;
         }
         else {
             instructionsForCargoFile << ", " << get<5>(instruction) << ", "
@@ -252,7 +266,7 @@ void writeInstructionsToFile( vector<tuple<char,string,int,int,int,int,int,int>>
 //    return temp[0];
 //}
 
-
+//
 //bool checkIfValidContainer(Container* container){
 //    string id = container->getId();
 //    if (id.size() != 11)

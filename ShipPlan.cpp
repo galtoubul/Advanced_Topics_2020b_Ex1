@@ -18,7 +18,9 @@ const VVVC& ShipPlan::getContainers() {
 
 void ShipPlan::setContainers(int x, int y, int floor, Container* container){
      this->containers[x][y][floor] = container;
-     containers[x][y][floor]->setLocation(x, y, floor);
+     if (container == nullptr)
+         return;
+    containers[x][y][floor]->setLocation(x, y, floor);
 }
 
 void ShipPlan::removeContainer (int x, int y, int floor){

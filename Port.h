@@ -15,9 +15,11 @@ public:
 
     const string& getPortId() const;
 
-    void addContainersToUnloadToPort(vector<Container*>& _containersToUnload);
+    void addContainerToUnloadToPort(Container* container);
 
     const vector<Container*>& getContainersToUnload();
+
+    void unloadedAllContainers();
 
     friend std::ostream&operator<<(std::ostream& out, const Port& port);
 

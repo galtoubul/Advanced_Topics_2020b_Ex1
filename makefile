@@ -1,6 +1,6 @@
 COMP = g++-8.3.0
 #put all your object files here
-OBJS = main.o Container.o ShipPlan.o Port.o ShipRoute.o Common.o Parser.o Simulation.o StowageAlgorithm.o WeightBalanceCalculator.o
+OBJS = main.o Container.o ShipPlan.o Port.o ShipRoute.o Common.o Parser.o Simulation.o Algorithm.o WeightBalanceCalculator.o
 
 EXEC = ex1
 CPP_COMP_FLAG = -std=c++2a -Wall -Wextra -Werror -pedantic-errors -DNDEBUG
@@ -24,10 +24,11 @@ Common.o: Common.cpp Common.h WeightBalanceCalculator.h ShipPlan.h ShipRoute.h
 	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
 Parser.o: Parser.cpp Parser.h Port.h Container.h
 	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
-Simulation.o: Simulation.cpp Simulation.h StowageAlgorithm.h 
+Simulation.o: Simulation.cpp Simulation.h Algorithm.h
 	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
-StowageAlgorithm.o: StowageAlgorithm.cpp StowageAlgorithm.h Common.h Parser.h
+Algorithm.o: Algorithm.cpp Algorithm.h Common.h Parser.h
 	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
-WeightBalanceCalculator.o: WeightBalanceCalculator.cpp WeightBalanceCalculator.h 
+WeightBalanceCalculator.o: WeightBalanceCalculator.cpp WeightBalanceCalculator.h
+	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
 clean:
 	rm -f $(OBJS) $(EXEC)

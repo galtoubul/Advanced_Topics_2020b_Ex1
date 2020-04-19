@@ -10,7 +10,9 @@ class Algorithm {
 
 ShipPlan shipPlan;
 ShipRoute shipRoute;
+Port* currPort;
 WeightBalanceCalculator calculator;
+bool isFinalPort = false;
 
 public:
     enum algorithmName {algorithm1 = 1};
@@ -27,9 +29,22 @@ public:
 //    void readShipRoute(const std::string& full_path_and_file_name);
     void setWeightBalanceCalculator(WeightBalanceCalculator& _calculator);
 
+    void setCurrPort(Port* port);
+
+    Port* getCurrPort();
+
     void getInstructionsForCargo(const string& inputFileName, const string& outputFileName);
 
-    };
+    vector<tuple<char,string,int,int,int,int,int,int>> runAlgorithmForPort(vector<Container*> containersAwaitingAtPort);
+
+    void unloadToPort(Container* container, vector<tuple<char,string,int,int,int,int,int,int>>* instructions);
+
+    void loadToShip(Container* container, vector<tuple<char,string,int,int,int,int,int,int>>* instructions);
+
+    Port * findPortFromId(const string& portId);
+
+
+};
 
 class Algorithm1 : public Algorithm {
 
@@ -37,11 +52,6 @@ public:
     Algorithm1() : Algorithm() {}
 };
 
-//vector<tuple<char,string,int,int,int,int,int,int>> runAlgorithmForPort(Port* port, vector<Container*> containersAwaitingAtPort, ShipPlan* shipPlan, ShipRoute* shipRoute, int  currPortI);
-//
-//void unloadToPort(Container* container, Port* port, vector<tuple<char,string,int,int,int,int,int,int>>* instructions, ShipPlan *shipPlan);
-//
-//void loadToShip(Container* container, Port* port, vector<tuple<char,string,int,int,int,int,int,int>>* instructions, ShipPlan *shipPlan, ShipRoute* shipRoute);
 
 
 

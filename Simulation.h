@@ -1,13 +1,15 @@
 #include <vector>
 #include <tuple>
 #include <string>
-#include "StowageAlgorithm.h"
+#include "Algorithm.h"
 using std::vector;
 using std::tuple;
 
 class Simulator{
     ShipPlan shipPlan;
     ShipRoute shipRoute;
+    int currPortIndex;
+
 public:
     Simulator () : shipPlan(), shipRoute() {}
 
@@ -23,7 +25,10 @@ public:
 
     const ShipRoute& getShipRoute() const;
 
-};
+  //  Port* findPortFromId(const string& portId);
+
+
+    };
 
 //void initSimulation (string shipPlanFileName, string shipRouteFileName);
 //

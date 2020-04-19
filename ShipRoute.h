@@ -6,16 +6,16 @@ using std::list;
 using std::vector;
 
 class ShipRoute{
-    list<Port> portList;
+    list<Port*> portList;
 
 public:
     ShipRoute () : portList() {}
 
-    ShipRoute(list<Port>& _portList) : portList(_portList) {}
+    ShipRoute(list<Port*> _portList) : portList(_portList) {}
 
-    Port& getNextPort();
+    Port* getNextPort();
 
-    const list<Port>& getPortList() const;
+    list<Port*>& getPortList();
 
     friend std::ostream& operator<<(std::ostream& out, const ShipRoute& shipRoute);
 };

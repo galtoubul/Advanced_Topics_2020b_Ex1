@@ -4,7 +4,7 @@ project(Ex1)
 set(CMAKE_CXX_STANDARD 17)
 
 add_executable(Ex1 main.cpp ShipPlan.cpp ShipPlan.h Container.cpp Container.h Port.h Port.cpp ShipRoute.h ShipRoute.cpp
-        Simulation.cpp Simulation.h StowageAlgorithm.cpp StowageAlgorithm.h main.h Common.cpp Common.h
+        Simulation.cpp Simulation.h Algorithm.cpp Algorithm.h main.h Common.cpp Common.h
         WeightBalanceCalculator.cpp WeightBalanceCalculator.h Parser.cpp Parser.h)
 
 set(GCC_COVERAGE_COMPILE_FLAGS "-Wall -Wextra -Werror -pedantic-errors -DNDEBUG")
