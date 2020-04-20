@@ -152,11 +152,11 @@ bool fileExists (const std::string& fileName) { //TODO: try to make it an inline
     return f.good();
 }
 
-void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int currPortIndex, const string& travelName){
+void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int currPortIndex, const string& travelName, bool isFinalPort){
     string str;
     inputFileName = travelName + string(1, std::filesystem::path::preferred_separator) +
                     portId + "_" + std::to_string(currPortIndex) + ".cargo_data.txt";
-    if (!fileExists(inputFileName)) {
+    if (!fileExists(inputFileName) && !isFinalPort) {
         std::cout << "There isn't any port file name matching " << inputFileName << " .Exiting..." << std::endl;
         exit (EXIT_FAILURE);
     }
@@ -242,3 +242,25 @@ void writeInstructionsToFile(vector<INSTRUCTION>& instructions, ofstream& instru
     instructionsForCargoFile << std::endl;
     instructionsForCargoFile.close();
 }
+
+int findPortIndex(ShipRoute& shipRoute, string& portId, int currPortIndex){
+    for (int i = currPortIndex +1; (size_t)i < shipRoute.getPortsList().size(); i++) {
+        if (shipRoute.getPortsList()[i].getPortId() == portId)
+            return i;
+    }
+    cout << portId << " is not in route" << endl;
+    return NOT_IN_ROUTE; //won't reach this return
+}
+
+vector<Container*> orderContainersByDest(vector<Container*> containersAwaitingAtPort, ShipRoute& shipRoute, int currPortIndex){
+    vector<Container*> newContainersAwaitingAtPort;
+    for (size_t i = currPortIndex +1; i < shipRoute.getPortsList().size(); i++){
+        for (Container* container : containersAwaitingAtPort){
+            string destPort = container->getDestination();
+            if (findPortIndex(shipRoute, destPort, (int)currPortIndex) == (int)i)
+                newContainersAwaitingAtPort.push_back(container);
+        }
+    }
+    return newContainersAwaitingAtPort;
+}
+

@@ -36,4 +36,4 @@ public:
 
     friend std::ostream& operator<<(std::ostream& out, const Container& container);
 
-    };
+};

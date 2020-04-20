@@ -42,27 +42,33 @@ void Simulator::startTravel (Algorithm* algorithm, const string& travelName){
         cout << "just for removing uyused wraning " << algorithm->currPortIndex << endl;
 
         Algorithm::currPortIndex = ++currPortIndex;
+        cout << "currportindex " << algorithm->currPortIndex << " " << Algorithm::currPortIndex << " " << currPortIndex << endl;
+
         string inputFileName, outputFileName;
         bool isFinalPort = (size_t)currPortIndex == this->shipRoute.getPortsList().size()-1;
-        getPortFilesName(inputFileName, outputFileName, port.getPortId(), currPortIndex, travelName);
-//        if (isFinalPort){
-//            std::cout << "final port: " << port.getPortId() << std::endl;
-//            std::cout << "Simulator -- There are "<< algorithm->getCurrPort()->getContainersToUnload().size() << " containers to unload to port" << algorithm->getCurrPort()->getPortId() << " :" << std:: endl;
-//            for (Container* container : algorithm->getCurrPort()->getContainersToUnload())
-//                std::cout << *container << std:: endl;
-//            algorithm->getInstructionsForCargo("finalPort", outputFileName);
-//            continue; //==break;
-//        }
+        getPortFilesName(inputFileName, outputFileName, port.getPortId(), currPortIndex, travelName, isFinalPort);
+
         vector<Container*> containersAwaitingAtPort;
-        readContainersAwaitingAtPort(inputFileName, containersAwaitingAtPort);
-
-        if (isFinalPort && !containersAwaitingAtPort.empty())
-            cout << "Warning: " << port.getPortId() << " is the last port at the ship a route, but it has containers to unload.\n"
-                                                       "All of these containers won't be unloaded from port." << endl;
-
+        if (!isFinalPort)
+            readContainersAwaitingAtPort(inputFileName, containersAwaitingAtPort);
         cout << "Simulator -- There are "<< containersAwaitingAtPort.size() << " containers awaiting at port " << port.getPortId() << " :" << endl;
         for (Container* container : containersAwaitingAtPort)
             std::cout << *container << std:: endl;
+        if (isFinalPort && !containersAwaitingAtPort.empty())
+            cout << "Warning: " << port.getPortId() << " is the last port at the ship a route, but it has containers to unload.\n"
+                                                       "All of these containers won't be unloaded from port." << endl;
+        int slots = freeSlotsInShip();
+        for (Container* container : containersAwaitingAtPort){
+            if (slots == 0)
+                break;
+            string destPort = container->getDestination();
+            int indexOfDestPort = findPortIndex(this->shipRoute, destPort, currPortIndex);
+            cout << "dest is "<< indexOfDestPort <<  endl;
+            if (indexOfDestPort == NOT_IN_ROUTE)
+                continue;
+            (const_cast<Port&>(this->shipRoute.getPortsList()[indexOfDestPort])).addContainerToUnloadToPort(container);
+            slots--;
+        }
 
         cout << "Simulator -- There are "<< port.getContainersToUnload().size() << " containers to unload to port " << port.getPortId() << " :" << endl;
         for (Container* container : port.getContainersToUnload())
@@ -87,10 +93,12 @@ std::ostream& operator<<(std::ostream& out, const Simulator& simulator){
     return out;
 }
 
-/*Port* Simulator::findPortFromId(const string& portId){
-    for (Port* port : this->shipRoute.getPortList()) {
-        if (port->getPortId() == portId)
-            return port;
-    }
-    return nullptr; //won't reach there
-}*/
+int Simulator::freeSlotsInShip() {
+    int counter = 0;
+    for (int x = 0; x < this->shipPlan.getPivotXDimension(); x++)
+        for (int y = 0; y < this->shipPlan.getPivotYDimension(); y++)
+            for (int floor = 0; floor < this->shipPlan.getFloorsNum(); floor++)
+                if (this->shipPlan.getContainers()[x][y][floor] == nullptr)
+                    counter++;
+    return counter;
+}

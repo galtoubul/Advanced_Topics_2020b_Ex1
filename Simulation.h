@@ -23,6 +23,7 @@ public:
     const ShipPlan& getShipPlan () const;
 
     const ShipRoute& getShipRoute() const;
+    int freeSlotsInShip ();
 
   //  Port* findPortFromId(const string& portId);
     };

@@ -22,11 +22,11 @@ string extPortIdFromFileName(string input_full_path_and_file_name);
 
 //bool checkIfValidContainer(Container* container);
 
-bool portInRoute(ShipRoute& shipRoute, string& portId);
-
 void writeInstructionsToFile(vector<INSTRUCTION>& instructions, ofstream& instructionsForCargoFile);
 
-void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int currPortIndex, const string& travelName);
+void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int currPortIndex, const string& travelName, bool isFinalPort);
 
+int findPortIndex(ShipRoute& shipRoute, string& portId, int currPortIndex);
 
+vector<Container*> orderContainersByDest(vector<Container*> containersAwaitingAtPort, ShipRoute& shipRoute, int currPortIndex);
 
