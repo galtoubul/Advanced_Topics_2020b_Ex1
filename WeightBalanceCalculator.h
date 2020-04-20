@@ -1,6 +1,8 @@
 #include <tuple>
+#define UNLOAD 'U'
+#define LOAD 'L'
 class WeightBalanceCalculator{
 public:
     WeightBalanceCalculator() {}
-    bool approveAction(std::tuple<char, int, int, int, int>);
+    bool tryOperation(char command, int weight, int x, int y);
 };

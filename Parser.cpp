@@ -224,7 +224,7 @@ void writeInstructionsToFile(vector<INSTRUCTION>& instructions, ofstream& instru
 {
     for (INSTRUCTION instruction : instructions){
         instructionsForCargoFile << get<0>(instruction) <<", " << get<1>(instruction);
-        if (get<0>(instruction) == 'R'){
+        if (get<0>(instruction) == REJECT){
             instructionsForCargoFile << "\n";
             continue;
         }

@@ -7,6 +7,7 @@
 #include "ShipPlan.h"
 #include "WeightBalanceCalculator.h"
 #define INSTRUCTION tuple<char,string,int,int,int>
+#define REJECT 'R'
 using std::ifstream;
 using std::ofstream;
 using std::tuple;
@@ -26,7 +27,6 @@ bool portInRoute(ShipRoute& shipRoute, string& portId);
 void writeInstructionsToFile(vector<INSTRUCTION>& instructions, ofstream& instructionsForCargoFile);
 
 void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int currPortIndex, const string& travelName);
-
 
 
 

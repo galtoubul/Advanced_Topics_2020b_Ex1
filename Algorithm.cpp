@@ -62,14 +62,16 @@ void Algorithm1::unloadToPort(Container* container, vector<INSTRUCTION>& instruc
             continue;
         }
         // std::cout << "not yet "<< currContainer->getId() << std::endl;
-        instructions.emplace_back('U',currContainer->getId(), currFloor, x, y);
-        containersToLoadBack.emplace_back('L', currContainer->getId(), currFloor - 1, x, y);
-        currFloor--;
+        if(this->calculator.tryOperation(UNLOAD, currContainer->getWeight(), x, y)){
+            instructions.emplace_back(UNLOAD,currContainer->getId(), currFloor, x, y);
+            containersToLoadBack.emplace_back(LOAD, currContainer->getId(), currFloor - 1, x, y);
+            currFloor--;
+        }
     }
 
     //if (currContainer == nullptr){}
     currContainer = this->shipPlan.getContainers()[x][y][currFloor];
-    instructions.emplace_back('U', currContainer->getId(), currFloor, x, y);
+    instructions.emplace_back(UNLOAD, currContainer->getId(), currFloor, x, y);
     //std::cout << "took it "<< currContainer->getId() << std::endl;
     this->shipPlan.removeContainer(x, y, currFloor);
 
@@ -97,7 +99,7 @@ void Algorithm1::getLoadingInstructions(vector<INSTRUCTION> instructions, vector
 void Algorithm1::loadToShip(Container* container, vector<INSTRUCTION>& instructions){
     string portDest = container->getDestination();
     if (!portInRoute(this->shipRoute, portDest)) {
-        instructions.emplace_back('R', container->getId(), NOT_IN_ROUTE, NOT_IN_ROUTE, NOT_IN_ROUTE);
+        instructions.emplace_back(REJECT, container->getId(), NOT_IN_ROUTE, NOT_IN_ROUTE, NOT_IN_ROUTE);
         return;
     }
     for (int x = 0; x < this->shipPlan.getPivotXDimension(); x++){
@@ -109,9 +111,11 @@ void Algorithm1::loadToShip(Container* container, vector<INSTRUCTION>& instructi
                 else{
                     this->shipPlan.setContainers(x, y, floor, container); //for now put in the first free spot
                     container->setLocation(x, y, floor);
-                    instructions.emplace_back('L', container->getId(), floor, x, y);
-                    (const_cast<Port&>(shipRoute.getPortsList()[currPortIndex])).addContainerToUnloadToPort(container);
-                    return;
+                    if(this->calculator.tryOperation(UNLOAD, container->getWeight(), x, y)){
+                        instructions.emplace_back(LOAD, container->getId(), floor, x, y);
+                        (const_cast<Port&>(shipRoute.getPortsList()[currPortIndex])).addContainerToUnloadToPort(container);
+                        return;
+                    }
                 }
             }
         }
