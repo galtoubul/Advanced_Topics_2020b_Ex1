@@ -1,23 +1,27 @@
 #include <iostream>
 #include <string>
-#include <vector>
 #include "ShipRoute.h"
-using std::list;
-
+//using std::list;
+using std::unordered_map;
+using std::vector;
 //TODO: validity check port name is where we get the input
 
-Port* ShipRoute::getNextPort(){
-    return portList.front();
+//const Port& ShipRoute::getNextPort() const{
+//    return portList.front();
+//}
+
+const vector<Port>& ShipRoute::getPortsList() const{
+    return this->portsList;
 }
 
-list<Port*>& ShipRoute::getPortList(){
-    return this->portList;
+void ShipRoute::addPort(const string& portId){
+    this->portsList.emplace_back(portId);
 }
 
-std::ostream&operator<<(std::ostream& out, const ShipRoute& shipRoute) {
+std::ostream& operator<<(std::ostream& out, const ShipRoute& shipRoute) {
     out << "route: ";
-    for (auto const& p : shipRoute.portList)
-        out << p << ' ';
+    for (auto const& p : shipRoute.portsList)
+        out << p.getPortId() << ' ';
     return out;
 }
 

@@ -3,7 +3,10 @@
 #include <list>
 #include <tuple>
 #include <string>
-#include "Common.h"
+#include "ShipRoute.h"
+#include "ShipPlan.h"
+#include "WeightBalanceCalculator.h"
+#define INSTRUCTION tuple<char,string,int,int,int>
 using std::ifstream;
 using std::ofstream;
 using std::tuple;
@@ -20,9 +23,9 @@ string extPortIdFromFileName(string input_full_path_and_file_name);
 
 bool portInRoute(ShipRoute& shipRoute, string& portId);
 
-void writeInstructionsToFile( vector<tuple<char,string,int,int,int,int,int,int>>& instructions, ofstream& instructionsForCargoFile);
+void writeInstructionsToFile(vector<INSTRUCTION>& instructions, ofstream& instructionsForCargoFile);
 
-void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int currPortIndex, const string& travelName, bool isFinalPort);
+void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int currPortIndex, const string& travelName);
 
 
 

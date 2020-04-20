@@ -1,22 +1,25 @@
 #include <iostream>
 #include <string>
-#include <list>
+#include <unordered_map>
+#include <vector>
 #include "Port.h"
-using std::list;
 using std::vector;
 
 class ShipRoute{
-    list<Port*> portList;
+    vector<Port> portsList;
 
 public:
-    ShipRoute () : portList() {}
+    ShipRoute () : portsList() {}
 
-    ShipRoute(list<Port*> _portList) : portList(_portList) {}
+    //ShipRoute(list<Port> _portList) : portList(_portList) {}
 
-    Port* getNextPort();
+    //const Port& getNextPort() const;
 
-    list<Port*>& getPortList();
+    const vector<Port>& getPortsList() const;
+
+    void addPort(const string& portId);
 
     friend std::ostream& operator<<(std::ostream& out, const ShipRoute& shipRoute);
+
 };
 

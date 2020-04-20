@@ -8,13 +8,14 @@ using std::string;
 
 class Algorithm {
 
-ShipPlan shipPlan;
-ShipRoute shipRoute;
-Port* currPort;
-WeightBalanceCalculator calculator;
-bool isFinalPort = false;
+protected:
+    ShipPlan shipPlan;
+    ShipRoute shipRoute;
+    WeightBalanceCalculator calculator;
 
 public:
+    static size_t currPortIndex;
+
     enum algorithmName {algorithm1 = 1};
 
     Algorithm () : shipPlan(), shipRoute(), calculator() {}
@@ -26,23 +27,9 @@ public:
         readShipRoute(this->shipRoute, shipRouteFileName);
     }
 
-//    void readShipRoute(const std::string& full_path_and_file_name);
     void setWeightBalanceCalculator(WeightBalanceCalculator& _calculator);
 
-    void setCurrPort(Port* port);
-
-    Port* getCurrPort();
-
-    void getInstructionsForCargo(const string& inputFileName, const string& outputFileName);
-
-    vector<tuple<char,string,int,int,int,int,int,int>> runAlgorithmForPort(vector<Container*> containersAwaitingAtPort);
-
-    void unloadToPort(Container* container, vector<tuple<char,string,int,int,int,int,int,int>>* instructions);
-
-    void loadToShip(Container* container, vector<tuple<char,string,int,int,int,int,int,int>>* instructions);
-
-    Port * findPortFromId(const string& portId);
-
+    virtual void getInstructionsForCargo(const string& inputFileName, const string& outputFileName)=0;
 
 };
 
@@ -50,6 +37,16 @@ class Algorithm1 : public Algorithm {
 
 public:
     Algorithm1() : Algorithm() {}
+
+    void getInstructionsForCargo(const string& inputFileName, const string& outputFileName);
+
+    void getUnloadingInstructions(vector<INSTRUCTION> instructions);
+
+    void getLoadingInstructions(vector<INSTRUCTION> instructions, vector<Container*> containersAwaitingAtPort);
+
+    void unloadToPort(Container* container, vector<INSTRUCTION>& instructions);
+
+    void loadToShip(Container* container, vector<INSTRUCTION>& instructions);
 };
 
 

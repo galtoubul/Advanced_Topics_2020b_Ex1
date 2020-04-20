@@ -17,10 +17,8 @@ public:
 
     void addContainerToUnloadToPort(Container* container);
 
-    const vector<Container*>& getContainersToUnload();
+    const vector<Container*>& getContainersToUnload() const;
 
-    void unloadedAllContainers();
-
-    friend std::ostream&operator<<(std::ostream& out, const Port& port);
+    friend std::ostream& operator<<(std::ostream& out, const Port& port);
 
 };

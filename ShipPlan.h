@@ -5,7 +5,8 @@ using std::vector;
 typedef vector<Container*> VC;
 typedef vector<vector<Container*>> VVC;
 typedef vector<vector<vector<Container*>>> VVVC;
-#define UNINITIALIZED -1
+#define NOT_ON_SHIP -1
+#define NOT_IN_ROUTE -2
 
 class ShipPlan{
     int dimX;
@@ -14,7 +15,7 @@ class ShipPlan{
     VVVC containers;
 
 public:
-    explicit ShipPlan() : dimX(UNINITIALIZED), dimY(UNINITIALIZED), floorsNum(UNINITIALIZED) {}
+    explicit ShipPlan() : dimX(NOT_ON_SHIP), dimY(NOT_ON_SHIP), floorsNum(NOT_ON_SHIP) {}
 
     ShipPlan(int _dimX, int _dimY, int _floorsNum) :
             dimX(_dimX), dimY(_dimY), floorsNum(_floorsNum),
@@ -35,11 +36,4 @@ public:
     void removeContainer (int x, int y, int floorNum);
 
     void printShipPlan () const;
-
-
-    //   std::stack<Container*>**& getContainers ();
-
-//    friend std::ostream&operator<<(std::ostream& out, const ShipPlan& shipPlan);
-
-    // ~ShipPlan();
 };

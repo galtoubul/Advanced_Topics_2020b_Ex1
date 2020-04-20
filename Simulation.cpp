@@ -1,4 +1,3 @@
-#include <sstream>
 #include <string>
 #include <iostream>
 #include <algorithm>
@@ -9,54 +8,9 @@ using std::tuple;
 using std::get;
 using std::ofstream;
 using std::string;
+using std::cout;
+using std::endl;
 #define BEFORE_FIRST_PORT -1
-//ShipPlan* shipPlan;
-//ShipRoute* shipRoute;
-Port* currPort;
-//
-//
-//void travel(string shipPlanFileName, string shipRouteFileName){
-//    initSimulation(shipPlanFileName, shipRouteFileName);
-//    currPortI = -1;
-//    for (Port port : shipRoute->getPortList()){
-//        currPortI++;
-//        currPort = &port;
-//        input_full_path_and_file_name = ;// find the proper file using extPortIdFromFileName
-//        getInstructionsForCargo(input_full_path_and_file_name, output_full_path_and_file_name); //figure out what they want the output file to be
-//    }
-//}
-
-void Simulator::startTravel (Algorithm* algorithm, const string& travelName){
-    currPortIndex = BEFORE_FIRST_PORT;
-    for (Port* port : this->shipRoute.getPortList()){
-
-        std::cout << "now in port" << port->getPortId() << std:: endl;
-
-        currPortIndex++;
-        currPort = port;
-        algorithm -> setCurrPort(port);
-        string inputFileName, outputFileName;
-        bool isFinalPort = (size_t)currPortIndex == this->shipRoute.getPortList().size()-1;
-        getPortFilesName(inputFileName, outputFileName, currPort->getPortId(), currPortIndex, travelName, isFinalPort);
-        if (isFinalPort){
-            std::cout << "Simulator -- There are "<< algorithm->getCurrPort()->getContainersToUnload().size() << " containers to unload to port" << algorithm->getCurrPort()->getPortId() << " :" << std:: endl;
-            for (Container* container : algorithm->getCurrPort()->getContainersToUnload())
-                std::cout << *container << std:: endl;
-            algorithm->getInstructionsForCargo("finalPort", outputFileName);
-            continue; //==break;
-        }
-        vector<Container*> containersAwaitingAtPort;
-        readContainersAwaitingAtPort(inputFileName, containersAwaitingAtPort);
-
-        std::cout << "Simulator -- There are "<< containersAwaitingAtPort.size() << " containers awaiting at port" << algorithm->getCurrPort()->getPortId() << " :" << std:: endl;
-        for (Container* container : containersAwaitingAtPort)
-            std::cout << *container << std:: endl;
-        std::cout << "Simulator -- There are "<< algorithm->getCurrPort()->getContainersToUnload().size() << " containers to unload to port" << algorithm->getCurrPort()->getPortId() << " :" << std:: endl;
-        for (Container* container : algorithm->getCurrPort()->getContainersToUnload())
-            std::cout << *container << std:: endl;
-        algorithm->getInstructionsForCargo(inputFileName, outputFileName);
-    }
-}
 
 void Simulator::initSimulation (int algorithmNum, int travelNum){
     string travelName = "Travel" + std::to_string(travelNum);
@@ -79,6 +33,43 @@ void Simulator::initSimulation (int algorithmNum, int travelNum){
 void Simulator::getInput(const string& shipPlanFileName, const string& shipRouteFileName){
     readShipPlan(this->shipPlan, shipPlanFileName);
     readShipRoute(this->shipRoute, shipRouteFileName);
+}
+
+void Simulator::startTravel (Algorithm* algorithm, const string& travelName){
+    size_t currPortIndex = BEFORE_FIRST_PORT;
+    for (const Port& port : this->shipRoute.getPortsList()){
+        cout << "now in port " << port.getPortId() << endl;
+        cout << "just for removing uyused wraning " << algorithm->currPortIndex << endl;
+
+        Algorithm::currPortIndex = ++currPortIndex;
+        string inputFileName, outputFileName;
+        bool isFinalPort = (size_t)currPortIndex == this->shipRoute.getPortsList().size()-1;
+        getPortFilesName(inputFileName, outputFileName, port.getPortId(), currPortIndex, travelName);
+//        if (isFinalPort){
+//            std::cout << "final port: " << port.getPortId() << std::endl;
+//            std::cout << "Simulator -- There are "<< algorithm->getCurrPort()->getContainersToUnload().size() << " containers to unload to port" << algorithm->getCurrPort()->getPortId() << " :" << std:: endl;
+//            for (Container* container : algorithm->getCurrPort()->getContainersToUnload())
+//                std::cout << *container << std:: endl;
+//            algorithm->getInstructionsForCargo("finalPort", outputFileName);
+//            continue; //==break;
+//        }
+        vector<Container*> containersAwaitingAtPort;
+        readContainersAwaitingAtPort(inputFileName, containersAwaitingAtPort);
+
+        if (isFinalPort && !containersAwaitingAtPort.empty())
+            cout << "Warning: " << port.getPortId() << " is the last port at the ship a route, but it has containers to unload.\n"
+                                                       "All of these containers won't be unloaded from port." << endl;
+
+        cout << "Simulator -- There are "<< containersAwaitingAtPort.size() << " containers awaiting at port " << port.getPortId() << " :" << endl;
+        for (Container* container : containersAwaitingAtPort)
+            std::cout << *container << std:: endl;
+
+        cout << "Simulator -- There are "<< port.getContainersToUnload().size() << " containers to unload to port " << port.getPortId() << " :" << endl;
+        for (Container* container : port.getContainersToUnload())
+            cout << *container << endl;
+
+        algorithm->getInstructionsForCargo(inputFileName, outputFileName);
+    }
 }
 
 const ShipPlan& Simulator::getShipPlan () const{
