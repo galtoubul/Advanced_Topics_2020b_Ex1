@@ -5,7 +5,6 @@ using std::vector;
 typedef vector<Container*> VC;
 typedef vector<vector<Container*>> VVC;
 typedef vector<vector<vector<Container*>>> VVVC;
-#define NOT_ON_SHIP -1
 #define NOT_IN_ROUTE -2
 
 class ShipPlan{

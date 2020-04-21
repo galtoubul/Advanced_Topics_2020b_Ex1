@@ -1,9 +1,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
-class Container;
 using std::string;
 using std::vector;
+class Container;
 
 class Port {
     string id;

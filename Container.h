@@ -1,9 +1,22 @@
+/**
+ * Container Summary:
+ *
+ * Contains the class of Container and its related functions:
+ *
+ * Container    -
+ * calcVariables       -  an assistance function for createEntryTable.
+ * destroyEntryTable   -  Frees all allocated memory related to the stack.
+ * parseSol            -  inserts a Game into the top of the stack.
+ * parseLPSol          -  returns the Game from the top of the stack and removes it from the Entry Table.
+ * printEntryTable     -  for debugging purposes. Prints all relevant information about the entry table.
+ */
+
 #include <string>
 #include <iostream>
 #include <tuple>
-#define NOT_ON_SHIP -1
 using std::string;
 using std::tuple;
+#define NOT_ON_SHIP -1
 
 class Container{
     int weight;

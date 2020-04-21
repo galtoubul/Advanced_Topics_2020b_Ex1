@@ -16,7 +16,8 @@ int Simulator::algorithmActionsCounter;
 
 void Simulator::initSimulation (int algorithmNum, int travelNum){
     string travelName = "Travel" + std::to_string(travelNum);
-    std::cout << "Starting travel: "<< travelName << std:: endl;
+//    std::cout << "Starting travel: "<< travelName << std:: endl;
+  //  std::cout << "Sta.... " << std:: endl;
 
     string shipPlanPath = travelName +  std::string(1, std::filesystem::path::preferred_separator) + "Ship Plan.txt";
     string shipRoutePath = travelName + std::string(1, std::filesystem::path::preferred_separator) + "Route.txt";
@@ -43,15 +44,18 @@ void Simulator::setWeightBalanceCalculator(WeightBalanceCalculator& _calculator)
     this->calculator = _calculator;
 }
 
+void clearData(ShipPlan& shipPlan, ShipRoute& shipRoute){
+    const_cast<VVVC&>(shipPlan.getContainers()).clear();
+    const_cast<vector<Port>&>(shipRoute.getPortsList()).clear();
+}
+
 void Simulator::getInput(const string& shipPlanFileName, const string& shipRouteFileName){
+    clearData(this->shipPlan, this->shipRoute);
     readShipPlan(this->shipPlan, shipPlanFileName);
     readShipRoute(this->shipRoute, shipRouteFileName);
 }
 
 int Simulator::checkLoadInstruction(int x, int y, int floor, Container* container){
-    cout << "inside checkLoadInstruction" << endl;
-//    cout << container->getId() << endl;
-
     if(shipPlan.getContainers()[x][y][floor] != nullptr && shipPlan.getContainers()[x][y][floor]->isFutile()){
         NOT_LEGAL_OPERATION("Loading", container->getId(), floor, x, y, "this location is blocked")
         return ERROR;
@@ -91,8 +95,6 @@ int Simulator::checkUnloadInstruction(int x, int y, int floor, Container* contai
     }
 }
 
-//Todo: consider exploring the source of the trimming bug instead of just hardcoding
-// trim white spaces from left
 inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v")
 {
     s.erase(0, s.find_first_not_of(t));
@@ -104,7 +106,6 @@ int Simulator::checkAndCountAlgorithmActions(vector<Container*>& containersAwait
     vector<INSTRUCTION> instructions;
     getInstructionsForPort(outputFileName, instructions);
     for (INSTRUCTION instruction : instructions) {
-        algorithmActionsCounter++;
         char instructionType;
         string containerId;
         int x, y, floor;
@@ -113,23 +114,19 @@ int Simulator::checkAndCountAlgorithmActions(vector<Container*>& containersAwait
         Container *container = nullptr;
 
             if (instructionType == LOAD){
-//                cout << "searching for container ." << ltrim(containerId) << ". :" << endl;
+                algorithmActionsCounter++;
                 vector<Container*> currContainersAwaitingAtPort = containersAwaitingAtPort;
                 int locInVec = -1;
                 for (Container *_container : currContainersAwaitingAtPort) {
                     locInVec++;
-//                    cout << "   " << *_container << endl;
                     if (_container->getId() == ltrim(containerId)) {
                         container = _container;
                         break;
                     }
-//                    else
-//                        cout << "   ." << _container->getId() << ". != ." << ltrim(containerId) << "." << endl;
                 }
                 containersAwaitingAtPort.erase(containersAwaitingAtPort.begin()+locInVec);
                 if (container == nullptr) {
-                    NOT_LEGAL_OPERATION("Loading", containerId, floor, x, y,
-                                        "this container isn't exist at " + currPortSymbol)
+                    NOT_LEGAL_OPERATION("Loading", containerId, floor, x, y,"this container isn't exist at " + currPortSymbol)
                     return ERROR;
                 }
                 if (checkLoadInstruction(x, y, floor, container) == ERROR)
@@ -137,10 +134,10 @@ int Simulator::checkAndCountAlgorithmActions(vector<Container*>& containersAwait
                 continue;
             }
             else if (instructionType == UNLOAD){
+                algorithmActionsCounter++;
                 container = shipPlan.getContainers()[x][y][floor];
                 if (container == nullptr) {
-                    NOT_LEGAL_OPERATION("Unloading", containerId, floor, x, y,
-                                        "this container isn't exist at Ship")
+                    NOT_LEGAL_OPERATION("Unloading", containerId, floor, x, y,"this container isn't exist at Ship")
                     return ERROR;
                 }
                 if (checkUnloadInstruction(x, y, floor, container, containersAwaitingAtPort) == ERROR)
@@ -170,28 +167,14 @@ int Simulator::checkAndCountAlgorithmActions(vector<Container*>& containersAwait
             }
         }
     }
-    cout << "Algorithm's counter: " << algorithmActionsCounter << endl;
     return VALID;
-
-//    for (int i = instructions.size() - 1; i > 0; i--){
-//        if(get<0>(instructions[i]) == UNLOAD &&
-//           shipPlan.getContainers()[get<4>(instructions[i])][get<2>(instructions[i])][get<3>(instructions[i])]->getDestination() != currPortSymbol){
-//            CONTAINER_FORGOTTEN(currPortSymbol)
-//            return ERROR;
-//        }
-//    }
-
-
 }
 
 int Simulator::startTravel (Algorithm* algorithm, const string& travelName){
     size_t currPortIndex = BEFORE_FIRST_PORT;
     Simulator::algorithmActionsCounter = 0;
     for (const Port& port : this->shipRoute.getPortsList()){
-        cout << "now in port " << port.getPortId() << endl;
-
         Algorithm::currPortIndex = ++currPortIndex;
-        cout << "Algorithm's currPortIndex: " << Algorithm::currPortIndex << " Simulator's currPortIndex:" << currPortIndex << endl;
 
         string inputFileName, outputFileName;
         bool isFinalPort = (size_t)currPortIndex == this->shipRoute.getPortsList().size() - 1;
@@ -201,33 +184,9 @@ int Simulator::startTravel (Algorithm* algorithm, const string& travelName){
         if (!isFinalPort){
             readContainersAwaitingAtPort(inputFileName, containersAwaitingAtPort);
         }
-        cout << "Simulator -- There are "<< containersAwaitingAtPort.size() << " containers awaiting at port " << port.getPortId() << " :" << endl;
-        for (Container* container : containersAwaitingAtPort)
-            std::cout << *container << std:: endl;
-
-        //????????
-//        int slots = freeSlotsInShip();
-//        for (Container* container : containersAwaitingAtPort){
-//            if (slots == 0)
-//                break;
-//
-//            string destPort = container->getDestination();
-//            int indexOfDestPort = findPortIndex(this->shipRoute, destPort, currPortIndex);
-//            if (indexOfDestPort == NOT_IN_ROUTE)
-//                continue;
-//
-//            (const_cast<Port&>(this->shipRoute.getPortsList()[indexOfDestPort])).addContainerToUnloadToPort(container);
-//            slots--;
-//        }
-
-        cout << "Simulator -- There are "<< port.getContainersToUnload().size() << " containers to unload to port " << port.getPortId() << " :" << endl;
-        for (Container* container : port.getContainersToUnload())
-            cout << *container << endl;
 
         algorithm->getInstructionsForCargo(inputFileName, outputFileName);
-        this->shipPlan.printShipPlan();
         int status = checkAndCountAlgorithmActions(containersAwaitingAtPort, outputFileName, port.getPortId(), currPortIndex);
-        cout << "after checkAndCountAlgorithmActions" << endl;
         if (status == VALID)
             continue;
     }

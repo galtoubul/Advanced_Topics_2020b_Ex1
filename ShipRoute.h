@@ -11,15 +11,9 @@ class ShipRoute{
 public:
     ShipRoute () : portsList() {}
 
-    //ShipRoute(list<Port> _portList) : portList(_portList) {}
-
-    //const Port& getNextPort() const;
-
     const vector<Port>& getPortsList() const;
 
     void addPort(const string& portId);
 
     friend std::ostream& operator<<(std::ostream& out, const ShipRoute& shipRoute);
-
 };
-

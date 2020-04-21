@@ -3,7 +3,6 @@
  * This module contains all program errors and messages to be printed.
  */
 
-
 #define UNABLE_TO_OPEN_FILE(fileName)                       cout << "ERROR: Unable to open file: " << fileName << " Exiting..." << endl;
 
 #define CONTAINER_ERROR(x)                                  cout << "ERROR: Conatiner's " << x << " input isn't valid. Exiting..." << endl;

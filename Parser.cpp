@@ -121,20 +121,6 @@ void readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName){
             }
 
             shipRoute.addPort(line);
-
-//            Port existPrevPort{}; //TODO: check if using a pointer is a must
-//            for (Port& prevPort : portsList){
-//                if (prevPort.getPortId() == line){
-//                    existPrevPort = prevPort; //we want a pointer to the same port in memory
-//                    break;
-//                }
-//            }
-//            if (existPrevPort.getPortId() != "UNINITIALIZED"){
-//                Port newPort{};
-//                portsList.push_back(newPort);
-//            }
-//            else
-//                portsList.push_back(existPrevPort);
         }
         shipRouteInputFile.close();
     }
@@ -142,8 +128,6 @@ void readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName){
         UNABLE_TO_OPEN_FILE(shipPlanFileName)
         exit(EXIT_FAILURE);
     }
-
-    //shipRoute = portsList;
 }
 
 inline bool fileExists (const std::string& fileName) {
@@ -223,11 +207,7 @@ void readContainersAwaitingAtPort (const string& inputFileName, vector<Container
 
 void writeInstructionsToFile(vector<INSTRUCTION>& instructions, ofstream& instructionsForCargoFile)
 {
-    cout << "inside writeInstructionsToFile" << endl;
-    cout << "instructions.size(): " << instructions.size() << endl;
     for (INSTRUCTION instruction : instructions){
-        char c; string s; int x, y, z; std::tie(c,s,x,y,z) = instruction;
-        cout << "   " << c << " " << s << " " << x << " " << y << " " << z << endl;
         instructionsForCargoFile << get<0>(instruction) <<", " << get<1>(instruction);
         if (get<0>(instruction) == REJECT){
             instructionsForCargoFile << "\n";
@@ -245,8 +225,7 @@ int findPortIndex(const ShipRoute& shipRoute, const string& portSymbol, int curr
         if (shipRoute.getPortsList()[i].getPortId() == portSymbol)
             return i;
     }
-    cout << portSymbol << " is not in route" << endl;
-    return NOT_IN_ROUTE; //won't reach this return
+    return NOT_IN_ROUTE;
 }
 
 vector<Container*> orderContainersByDest(vector<Container*>& containersAwaitingAtPort, ShipRoute& shipRoute, int currPortIndex){

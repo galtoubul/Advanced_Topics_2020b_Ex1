@@ -15,8 +15,7 @@ Algorithm* Algorithm::createAlgorithm (int algorithmNum){
     switch (algorithmNum){
         case algorithm1:
             return new Algorithm1();
-        default:
-            cout << "Algorithm name doesn't match any algorithm name." << endl;
+        default: //until we will have more than one algorithm -> return instances of algorithm1
             return new Algorithm1();
     }
 }
@@ -29,30 +28,11 @@ void Algorithm1::getInstructionsForCargo(const string& inputFileName, const stri
     vector<INSTRUCTION> instructions;
     getUnloadingInstructions(instructions);
 
-    cout << "Algo -- instructions.size() after getUnloadingInstructions: " << instructions.size() << endl;
-    for (INSTRUCTION instruction : instructions){
-        char c; string s; int x, y, z; std::tie(c,s,x,y,z) = instruction;
-        cout << "   " << c << " " << s << " " << x << " " << y << " " << z << endl;
-    }
-
     bool isFinalPort = currPortIndex == shipRoute.getPortsList().size() -1;
     if (!isFinalPort) {
-        cout << "Algo -- iniside  if (!isFinalPort) " << endl;
-
         vector<Container*> containersAwaitingAtPort;
         readContainersAwaitingAtPort(inputFileName, containersAwaitingAtPort);
-
-        cout << "Algo -- containersAwaitingAtPort.size() = " << containersAwaitingAtPort.size() <<". the containers:" << endl;
-        for (Container* container : containersAwaitingAtPort)
-            cout << "   " << *container << endl;
-
         getLoadingInstructions(instructions, containersAwaitingAtPort);
-
-        cout << "Algo -- instructions.size() after getLoadingInstructions: " << instructions.size() << endl;
-        for (INSTRUCTION instruction : instructions){
-            char c; string s; int x, y, z; std::tie(c,s,x,y,z) = instruction;
-            cout << "   " << c << " " << s << " " << x << " " << y << " " << z << endl;
-        }
     }
 
     ofstream instructionsForCargoFile (outputFileName);
@@ -60,9 +40,7 @@ void Algorithm1::getInstructionsForCargo(const string& inputFileName, const stri
 }
 
 void Algorithm1::getUnloadingInstructions(vector<INSTRUCTION>& instructions){
-    cout << "algo -- There are "<< shipRoute.getPortsList()[currPortIndex].getContainersToUnload().size() << " containers to unload to port " << shipRoute.getPortsList()[currPortIndex].getPortId() << " :" << endl;
     for (Container* container : shipRoute.getPortsList()[currPortIndex].getContainersToUnload()){
-        std::cout << "unloading "<< container->getId() << std::endl;
         unloadToPort(container, instructions);
     }
 }
@@ -109,9 +87,14 @@ void Algorithm1::unloadToPort(Container* container, vector<INSTRUCTION>& instruc
 
 
 void Algorithm1::getLoadingInstructions(vector<INSTRUCTION>& instructions, vector<Container*> containersAwaitingAtPort){
+    for (Container* container : containersAwaitingAtPort){
+        string portDest = container->getDestination();
+        if (findPortIndex(this->shipRoute, portDest, currPortIndex) == NOT_IN_ROUTE) {
+            instructions.emplace_back(REJECT, container->getId(), NOT_IN_ROUTE, NOT_IN_ROUTE, NOT_IN_ROUTE);
+        }
+    }
     vector<Container*> sortedContainersAwaitingAtPort = orderContainersByDest(containersAwaitingAtPort, shipRoute, currPortIndex);
     for (Container* container : sortedContainersAwaitingAtPort){
-        std::cout << "loading "<< container->getId() << std:: endl;
         loadToShip(container, instructions);
     }
 }

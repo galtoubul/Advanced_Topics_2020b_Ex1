@@ -39,12 +39,3 @@ std::ostream& operator<<(std::ostream& out, const Container& container){
 
     return out;
 }
-
-
-
-
-
-
-
-
-
