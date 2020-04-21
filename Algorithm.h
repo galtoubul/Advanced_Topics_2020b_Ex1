@@ -5,6 +5,7 @@
 using std::vector;
 using std::tuple;
 using std::string;
+#define BEFORE_FIRST_PORT -1
 
 class Algorithm {
 
@@ -40,9 +41,9 @@ public:
 
     void getInstructionsForCargo(const string& inputFileName, const string& outputFileName);
 
-    void getUnloadingInstructions(vector<INSTRUCTION> instructions);
+    void getUnloadingInstructions(vector<INSTRUCTION>& instructions);
 
-    void getLoadingInstructions(vector<INSTRUCTION> instructions, vector<Container*> containersAwaitingAtPort);
+    void getLoadingInstructions(vector<INSTRUCTION>& instructions, vector<Container*> containersAwaitingAtPort);
 
     void unloadToPort(Container* container, vector<INSTRUCTION>& instructions);
 

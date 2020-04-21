@@ -8,7 +8,8 @@ using std::tuple;
 using std::endl;
 using std::list;
 using std::get;
-size_t Algorithm::currPortIndex;
+
+size_t Algorithm::currPortIndex = BEFORE_FIRST_PORT;
 
 Algorithm* Algorithm::createAlgorithm (int algorithmNum){
     switch (algorithmNum){
@@ -27,18 +28,38 @@ void Algorithm::setWeightBalanceCalculator(WeightBalanceCalculator& _calculator)
 void Algorithm1::getInstructionsForCargo(const string& inputFileName, const string& outputFileName){
     vector<INSTRUCTION> instructions;
     getUnloadingInstructions(instructions);
+
+    cout << "Algo -- instructions.size() after getUnloadingInstructions: " << instructions.size() << endl;
+    for (INSTRUCTION instruction : instructions){
+        char c; string s; int x, y, z; std::tie(c,s,x,y,z) = instruction;
+        cout << "   " << c << " " << s << " " << x << " " << y << " " << z << endl;
+    }
+
     bool isFinalPort = currPortIndex == shipRoute.getPortsList().size() -1;
     if (!isFinalPort) {
+        cout << "Algo -- iniside  if (!isFinalPort) " << endl;
+
         vector<Container*> containersAwaitingAtPort;
         readContainersAwaitingAtPort(inputFileName, containersAwaitingAtPort);
+
+        cout << "Algo -- containersAwaitingAtPort.size() = " << containersAwaitingAtPort.size() <<". the containers:" << endl;
+        for (Container* container : containersAwaitingAtPort)
+            cout << "   " << *container << endl;
+
         getLoadingInstructions(instructions, containersAwaitingAtPort);
+
+        cout << "Algo -- instructions.size() after getLoadingInstructions: " << instructions.size() << endl;
+        for (INSTRUCTION instruction : instructions){
+            char c; string s; int x, y, z; std::tie(c,s,x,y,z) = instruction;
+            cout << "   " << c << " " << s << " " << x << " " << y << " " << z << endl;
+        }
     }
 
     ofstream instructionsForCargoFile (outputFileName);
     writeInstructionsToFile(instructions, instructionsForCargoFile);
 }
 
-void Algorithm1::getUnloadingInstructions(vector<INSTRUCTION> instructions){
+void Algorithm1::getUnloadingInstructions(vector<INSTRUCTION>& instructions){
     cout << "algo -- There are "<< shipRoute.getPortsList()[currPortIndex].getContainersToUnload().size() << " containers to unload to port " << shipRoute.getPortsList()[currPortIndex].getPortId() << " :" << endl;
     for (Container* container : shipRoute.getPortsList()[currPortIndex].getContainersToUnload()){
         std::cout << "unloading "<< container->getId() << std::endl;
@@ -55,7 +76,7 @@ void Algorithm1::unloadToPort(Container* container, vector<INSTRUCTION>& instruc
     Container* currContainer;
 
     // unloading all containers above the desired container
-    while(currFloor != floorOfContainer){ //TODO: simulation + balance calculator check of moves
+    while(currFloor != floorOfContainer){
         currContainer = this->shipPlan.getContainers()[x][y][currFloor];
         if (currContainer == nullptr){
             currFloor--;
@@ -87,9 +108,9 @@ void Algorithm1::unloadToPort(Container* container, vector<INSTRUCTION>& instruc
 
 
 
-void Algorithm1::getLoadingInstructions(vector<INSTRUCTION> instructions, vector<Container*> containersAwaitingAtPort){
+void Algorithm1::getLoadingInstructions(vector<INSTRUCTION>& instructions, vector<Container*> containersAwaitingAtPort){
     vector<Container*> sortedContainersAwaitingAtPort = orderContainersByDest(containersAwaitingAtPort, shipRoute, currPortIndex);
-    for (Container* container : sortedContainersAwaitingAtPort){ //TODO: give priority to containers of closer destination port
+    for (Container* container : sortedContainersAwaitingAtPort){
         std::cout << "loading "<< container->getId() << std:: endl;
         loadToShip(container, instructions);
     }

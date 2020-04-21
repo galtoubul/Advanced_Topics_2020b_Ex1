@@ -4,11 +4,20 @@
 #include <iostream>
 #include <typeinfo>
 #include "Simulation.h"
-#include "main.h"
+#include "ErrorsInterface.h"
 using std::cout;
 using std::cin;
 using std::endl;
 #define NOT_LEGAL -1
+#define LEGAL 1
+
+int check(int num, const std::string& mode){
+    if (num < 0){
+        TRAVELS_OR_ALGORITHMS_NUMBER_ERROR(mode)
+        return NOT_LEGAL;
+    }
+    return LEGAL;
+}
 
 int main() {
 //    Container* container1 = new Container(1000 , "ILASH", "051065196581", false);
@@ -80,35 +89,30 @@ int main() {
 //
 //    cout << "----------------------------------------------------------" << '\n';
 
+//TODO: clean all above code and remove comment from the code below
+
 //    cout << "Welcome to Stowage Algorithm Simulator" << endl;
 //    cout << "How many algorithms would you like to test?" << endl;
 //    int algorithmsNum, travelsNum;
 //    do{
+//            cout << "Please reenter the number of algorithms you would like to test" << endl;
 //        cin >> algorithmsNum;
-//    } while (check(algorithmsNum, "algorithmsNum") == NOT_LEGAL);
+//    } while (check(algorithmsNum, "algorithms") == NOT_LEGAL);
 //    cout << "How many travels would you like to test?" << endl;
 //    do{
+//    cout << "Please reenter the number of algorithms you would like to test" << endl;
 //        cin >> travelsNum;
-//    } while (check(travelsNum, "travelsNum") == NOT_LEGAL);
+//    } while (check(travelsNum, "travels") == NOT_LEGAL);
 //
+
     Simulator simulator;
-    int algorithmsNum = 1, travelsNum = 1;
+    int algorithmsNum = 1, travelsNum = 1;//TODO: delete this row
 
     for (int i = 1; i <= algorithmsNum; ++i) {
         for (int j = 1; j <= travelsNum; ++j) {
             simulator.initSimulation(i, j); //Todo: change to vector?
         }
     }
-
-
-
-
-
-
-
-
-
-
 
 
 

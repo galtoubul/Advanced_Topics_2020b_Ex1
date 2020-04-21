@@ -35,5 +35,4 @@ public:
     void setDestination (const string& newDestination);
 
     friend std::ostream& operator<<(std::ostream& out, const Container& container);
-
 };

@@ -3,9 +3,6 @@
 #include <regex>
 #include <filesystem>
 #include "Parser.h"
-
-#define NOT_A_COMMENT_LINE 0
-#define COMMENT_LINE 1
 using std::string;
 using std::cout;
 using std::vector;
@@ -14,6 +11,8 @@ using std::endl;
 using std::list;
 using std::ofstream;
 using std::get;
+#define NOT_A_COMMENT_LINE 0
+#define COMMENT_LINE 1
 
 void split(vector<string>& elems, const string &s, char delim) {
     auto result = std::back_inserter(elems);
@@ -28,7 +27,7 @@ void split(vector<string>& elems, const string &s, char delim) {
 void validateShipPlanLine (const string& line){
     const std::regex regex("\\s*[0-9]\\s*[,]\\s*[0-9]\\s*[,]\\s*[0-9]\\s*");
     if (!(std::regex_match(line, regex))){
-        cout << "ship plan input isn't valid. Exiting..." << endl;
+        INVALID_INPUT("ship plan")
         exit(EXIT_FAILURE);
     }
 }
@@ -56,8 +55,8 @@ void readShipPlan (ShipPlan& shipPlan, const string& shipPlanFileName){
         }
         shipPlanInputFile.close();
     } else{
-        cout << "Unable to open file: " << shipPlanFileName << " Exiting..." << endl;
-        exit(EXIT_FAILURE); //TODO: change some of exits to return/exception
+        UNABLE_TO_OPEN_FILE(shipPlanFileName)
+        exit(EXIT_FAILURE);
     }
     int floorsNum, dimX, dimY;
     std::tie(floorsNum, dimX, dimY) = vecForShipPlan[0];
@@ -76,7 +75,7 @@ void checkIfValidPortId(string port){
     //have to be in model of: XX XXX - size 6
     const std::regex regex("\\s*[a-zA-z]{2}[ ][a-zA-z]{3}\\s*");
     if (!(std::regex_match(port, regex))){
-        cout << "Ship route input isn't valid. It contains a line with non legal seaport code: " << port << ". Exiting..." << endl;
+        NON_LEGAL_SEA_PORT_CODE(port)
         exit(EXIT_FAILURE);
     }
 }
@@ -117,7 +116,7 @@ void readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName){
 
             //the same port can't appear in two consecutive lines
             if(!shipRoute.getPortsList().empty() && line == shipRoute.getPortsList()[currPortInd - 1].getPortId()){
-                cout << "Ship route input isn't valid. It contains the same port in two consecutive lines. Exiting..." << endl;
+                SAME_PORT_AS_PREV
                 exit(EXIT_FAILURE);
             }
 
@@ -140,14 +139,14 @@ void readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName){
         shipRouteInputFile.close();
     }
     else{
-        cout << "Unable to open file: " << shipPlanFileName << " Exiting..." << endl;
-        exit(EXIT_FAILURE); //TODO: change some of exits to return/exception
+        UNABLE_TO_OPEN_FILE(shipPlanFileName)
+        exit(EXIT_FAILURE);
     }
 
     //shipRoute = portsList;
 }
 
-bool fileExists (const std::string& fileName) { //TODO: try to make it an inline function without linkers errors
+inline bool fileExists (const std::string& fileName) {
     ifstream f(fileName);
     return f.good();
 }
@@ -157,7 +156,7 @@ void getPortFilesName(string& inputFileName, string& outputFileName, const strin
     inputFileName = travelName + string(1, std::filesystem::path::preferred_separator) +
                     portId + "_" + std::to_string(currPortIndex) + ".cargo_data.txt";
     if (!fileExists(inputFileName) && !isFinalPort) {
-        std::cout << "There isn't any port file name matching " << inputFileName << " .Exiting..." << std::endl;
+        PORT_FILE_NAME_ISNT_MATCHING(inputFileName)
         exit (EXIT_FAILURE);
     }
     outputFileName = travelName +  std::string(1, std::filesystem::path::preferred_separator) +
@@ -167,7 +166,7 @@ void getPortFilesName(string& inputFileName, string& outputFileName, const strin
 void validateContainerId (const string& line){
     const std::regex regex("\\s*[A-Z]{3}[UJZ][0-9]{7}\\s*");
     if (!(std::regex_match(line, regex))){
-        cout << "Conatiner's id input isn't valid. Exiting..." << endl;
+        CONTAINER_ERROR("id")
         exit(EXIT_FAILURE);
     }
 }
@@ -175,14 +174,14 @@ void validateContainerId (const string& line){
 void validateWeight (const string& line){
     const std::regex regex("\\s*[0-9]*\\s*");
     if (!(std::regex_match(line, regex))){
-        cout << "Conatiner's weight input isn't valid. Exiting..." << endl;
+        CONTAINER_ERROR("weight")
         exit(EXIT_FAILURE);
     }
 }
 
 bool validateContainersAwaitingAtPortLine (vector<string>& line) {
     if (line.size() != 3) {
-        cout << "Containers awaiting at port input isn't valid. Exiting..." << endl;
+        INVALID_INPUT("Containers awaiting at port")
         exit(EXIT_FAILURE);
     }
     for (int i = 0; i < 3; ++i)
@@ -194,7 +193,7 @@ bool validateContainersAwaitingAtPortLine (vector<string>& line) {
     return true;
 }
 
-void readContainersAwaitingAtPort (const string& inputFileName, vector<Container*>& containersAwaitingAtPort){
+void readContainersAwaitingAtPort (const string& inputFileName, vector<Container*>& containersAwaitingAtPort, bool isFinalPort){
     ifstream inputFile (inputFileName);
     string line;
     if (inputFile.is_open()){
@@ -214,47 +213,43 @@ void readContainersAwaitingAtPort (const string& inputFileName, vector<Container
         }
         inputFile.close();
     }
-    else{
-        cout << "Unable to open file: " << inputFileName << " Exiting..." << endl;
-        exit(EXIT_FAILURE); //TODO: change some of exits to return/exception
+    else if (!isFinalPort){
+        UNABLE_TO_OPEN_FILE(inputFileName)
+        exit(EXIT_FAILURE);
     }
 }
 
 void writeInstructionsToFile(vector<INSTRUCTION>& instructions, ofstream& instructionsForCargoFile)
 {
+    cout << "inside writeInstructionsToFile" << endl;
+    cout << "instructions.size(): " << instructions.size() << endl;
     for (INSTRUCTION instruction : instructions){
+        char c; string s; int x, y, z; std::tie(c,s,x,y,z) = instruction;
+        cout << "   " << c << " " << s << " " << x << " " << y << " " << z << endl;
         instructionsForCargoFile << get<0>(instruction) <<", " << get<1>(instruction);
         if (get<0>(instruction) == REJECT){
             instructionsForCargoFile << "\n";
             continue;
         }
         instructionsForCargoFile << ", " << get<2>(instruction) <<", "
-                                 << get<3>(instruction) << ", "<< get<4>(instruction);
-//        if (get<0>(instruction) != 'M'){
-//            instructionsForCargoFile << "\n";
-//            continue;
-//        }
-//        else {
-//            instructionsForCargoFile << ", " << get<5>(instruction) << ", "
-//                                     << get<6>(instruction) << ", " << get<7>(instruction) << "\n";
-//        }
+                                 << get<3>(instruction) << ", "<< get<4>(instruction) << "\n";
     }
     instructionsForCargoFile << std::endl;
     instructionsForCargoFile.close();
 }
 
-int findPortIndex(ShipRoute& shipRoute, string& portId, int currPortIndex){
+int findPortIndex(const ShipRoute& shipRoute, const string& portSymbol, int currPortIndex){
     for (int i = currPortIndex +1; (size_t)i < shipRoute.getPortsList().size(); i++) {
-        if (shipRoute.getPortsList()[i].getPortId() == portId)
+        if (shipRoute.getPortsList()[i].getPortId() == portSymbol)
             return i;
     }
-    cout << portId << " is not in route" << endl;
+    cout << portSymbol << " is not in route" << endl;
     return NOT_IN_ROUTE; //won't reach this return
 }
 
-vector<Container*> orderContainersByDest(vector<Container*> containersAwaitingAtPort, ShipRoute& shipRoute, int currPortIndex){
+vector<Container*> orderContainersByDest(vector<Container*>& containersAwaitingAtPort, ShipRoute& shipRoute, int currPortIndex){
     vector<Container*> newContainersAwaitingAtPort;
-    for (size_t i = currPortIndex +1; i < shipRoute.getPortsList().size(); i++){
+    for (size_t i = currPortIndex + 1; i < shipRoute.getPortsList().size(); i++){
         for (Container* container : containersAwaitingAtPort){
             string destPort = container->getDestination();
             if (findPortIndex(shipRoute, destPort, (int)currPortIndex) == (int)i)
@@ -264,3 +259,18 @@ vector<Container*> orderContainersByDest(vector<Container*> containersAwaitingAt
     return newContainersAwaitingAtPort;
 }
 
+void getInstructionsForPort(const string& outputFileName, vector<INSTRUCTION>& instructions) {
+    ifstream outputFile(outputFileName);
+    string line;
+    vector<string> temp;
+    if (outputFile.is_open()) {
+        while (getline(outputFile, line)) {
+            split(temp, line, ',');
+            instructions.emplace_back(temp[0]. at(0), temp[1], stoi(temp[2]), stoi(temp[3]), stoi(temp[4]));
+        }
+        outputFile.close();
+    } else {
+        UNABLE_TO_OPEN_FILE(outputFileName)
+        exit(EXIT_FAILURE);
+    }
+}

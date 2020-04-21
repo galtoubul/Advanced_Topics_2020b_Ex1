@@ -7,7 +7,7 @@ CPP_LINK_FLAG = -lstdc++fs
 
 $(EXEC): $(OBJS)
 	$(COMP) $(OBJS) $(CPP_LINK_FLAG) -o $@
-main.o: main.cpp main.h Simulation.h
+main.o: main.cpp Simulation.h
 	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
 Container.o: Container.cpp Container.h
 	$(COMP) $(CPP_COMP_FLAG) -c $*.cpp
