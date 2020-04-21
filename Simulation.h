@@ -13,6 +13,7 @@ class Simulator{
 public:
     static int algorithmActionsCounter;
 
+
     Simulator () : shipPlan(), shipRoute() {}
 
     void initSimulation (int algorithmNum, int travelNum);
@@ -32,7 +33,7 @@ public:
     int freeSlotsInShip ();
 
     int checkAndCountAlgorithmActions(vector<Container*>& containersAwaitingAtPort,
-            const string& outputFileName, const string& portSymbol);
+            const string& outputFileName, const string& portSymbol, int currPortIndex);
 
     int checkLoadInstruction(int x, int y, int floor, Container* container);
 

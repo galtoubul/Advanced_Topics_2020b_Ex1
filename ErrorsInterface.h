@@ -19,6 +19,6 @@
 #define CONTAINER_FORGOTTEN(currPortSymbol)                 cout << "ERROR: There is a Container whose destination isn't" << currPortSymbol << " and yet it was Forgotten there.\nLeaving current travel..." << endl;
 #define CONTAINER_WASNT_DROPPED(currPortSymbol)             cout << "ERROR: There is a Container whose destination isn't" << currPortSymbol << "and yet it was Forgotten on ship.\nLeaving current travel..." << endl;
 
-#define LAST_PORT_WARNING                                   cout << "Warning: " << port.getPortId() << " is the last port at the ship a route, but it has containers to unload.\nAll of these containers won't be unloaded from port." << endl;
+#define LAST_PORT_WARNING                                   cout << "Warning: This is the last port at the ship a route, but it has containers to unload.\nAll of these containers won't be unloaded from port." << endl;
 
 #define TRAVELS_OR_ALGORITHMS_NUMBER_ERROR(x)               std::cout << "Number of " << x << " has to be positive." << std::endl;

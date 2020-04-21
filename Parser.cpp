@@ -159,6 +159,8 @@ void getPortFilesName(string& inputFileName, string& outputFileName, const strin
         PORT_FILE_NAME_ISNT_MATCHING(inputFileName)
         exit (EXIT_FAILURE);
     }
+    if (fileExists(inputFileName) && isFinalPort)
+        LAST_PORT_WARNING
     outputFileName = travelName +  std::string(1, std::filesystem::path::preferred_separator) +
                      portId + '_' + std::to_string(currPortIndex) + ".instructions_for_cargo.txt";
 }
@@ -262,10 +264,12 @@ vector<Container*> orderContainersByDest(vector<Container*>& containersAwaitingA
 void getInstructionsForPort(const string& outputFileName, vector<INSTRUCTION>& instructions) {
     ifstream outputFile(outputFileName);
     string line;
-    vector<string> temp;
     if (outputFile.is_open()) {
         while (getline(outputFile, line)) {
+            vector<string> temp;
             split(temp, line, ',');
+            if(temp.size() < 5)
+                continue;
             instructions.emplace_back(temp[0]. at(0), temp[1], stoi(temp[2]), stoi(temp[3]), stoi(temp[4]));
         }
         outputFile.close();
