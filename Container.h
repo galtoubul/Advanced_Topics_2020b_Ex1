@@ -3,12 +3,14 @@
  *
  * Contains the class of Container and its related functions:
  *
- * Container    -
- * calcVariables       -  an assistance function for createEntryTable.
- * destroyEntryTable   -  Frees all allocated memory related to the stack.
- * parseSol            -  inserts a Game into the top of the stack.
- * parseLPSol          -  returns the Game from the top of the stack and removes it from the Entry Table.
- * printEntryTable     -  for debugging purposes. Prints all relevant information about the entry table.
+ * Container ctors:   -  1) custom ctor which acts as empty ctor as well
+ *                       2) copy ctor which gets another container
+ * getWeight          -  returns the container's weight
+ * getDestination     -  returns the container's weight
+ * getId              -  returns the container's weight
+ * getLocation        -  returns the container's weight
+ * isFutile           -  returns true if the container is a futile container. Otherwise, returns false.
+ * setLocation        -  sets the container's location with the given location.
  */
 
 #include <string>
@@ -44,8 +46,6 @@ public:
     tuple<int,int,int> getLocation();
 
     void setLocation(int x, int y, int floor);
-
-    void setDestination (const string& newDestination);
 
     friend std::ostream& operator<<(std::ostream& out, const Container& container);
 };

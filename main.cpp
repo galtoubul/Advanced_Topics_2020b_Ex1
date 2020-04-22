@@ -12,6 +12,7 @@ using std::endl;
 int check(int num, const std::string& mode){
     if (num < 0){
         TRAVELS_OR_ALGORITHMS_NUMBER_ERROR(mode)
+        cout << "Please reenter the number you would like to test" << endl;
         return NOT_LEGAL;
     }
     return LEGAL;
@@ -22,12 +23,10 @@ int main() {
     cout << "How many algorithms would you like to test?" << endl;
     int algorithmsNum, travelsNum;
     do{
-            cout << "Please reenter the number of algorithms you would like to test" << endl;
         cin >> algorithmsNum;
     } while (check(algorithmsNum, "algorithms") == NOT_LEGAL);
     cout << "How many travels would you like to test?" << endl;
     do{
-    cout << "Please reenter the number of algorithms you would like to test" << endl;
         cin >> travelsNum;
     } while (check(travelsNum, "travels") == NOT_LEGAL);
 

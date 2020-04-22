@@ -26,10 +26,6 @@ void  Container::setLocation (int x, int y, int floor) {
     loc = std::make_tuple(x, y, floor);
 }
 
-void Container::setDestination (const string& newDestination){
-    this->destination = newDestination;
-}
-
 std::ostream& operator<<(std::ostream& out, const Container& container){
     if(container.futile)
         out << "futile container";

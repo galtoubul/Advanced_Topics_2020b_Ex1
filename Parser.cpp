@@ -32,9 +32,10 @@ void validateShipPlanLine (const string& line){
     }
 }
 
-int isComment (const string& line){
+int isCommentOrWS (const string& line){
     const std::regex regex("\\s*[#].*");
-    if (std::regex_match(line, regex))
+    const std::regex regexWS(R"(\s*\t*\r*\n*)");
+    if (std::regex_match(line, regex) || std::regex_match(line, regexWS))
         return COMMENT_LINE;
     return NOT_A_COMMENT_LINE;
 }
@@ -45,7 +46,7 @@ void readShipPlan (ShipPlan& shipPlan, const string& shipPlanFileName){
     string line;
     if (shipPlanInputFile.is_open()) {
         while (getline(shipPlanInputFile, line)) {
-            if(isComment(line))
+            if(isCommentOrWS(line))
                 continue;
 
             validateShipPlanLine(line);
@@ -107,7 +108,7 @@ void readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName){
     //list<Port> portsList;
     if (shipRouteInputFile.is_open()){
         while (getline(shipRouteInputFile,line)){
-            if(isComment(line))
+            if(isCommentOrWS(line))
                 continue;
 
             line = trim(line);
@@ -186,7 +187,7 @@ void readContainersAwaitingAtPort (const string& inputFileName, vector<Container
         while (getline(inputFile, line)){
             vector<string> temp;
             split(temp, line, ',');
-            if(isComment(line))
+            if(isCommentOrWS(line))
                 continue;
 
             if(!validateContainersAwaitingAtPortLine(temp))
