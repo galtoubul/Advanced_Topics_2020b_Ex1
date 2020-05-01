@@ -14,10 +14,14 @@ using std::endl;
 
 int Simulator::algorithmActionsCounter;
 
+inline void clearData(ShipPlan& shipPlan, ShipRoute& shipRoute){
+    const_cast<VVVC&>(shipPlan.getContainers()).clear();
+    const_cast<vector<Port>&>(shipRoute.getPortsList()).clear();
+}
+
 void Simulator::initSimulation (int algorithmNum, int travelNum){
     string travelName = "Travel" + std::to_string(travelNum);
-//    std::cout << "Starting travel: "<< travelName << std:: endl;
-  //  std::cout << "Sta.... " << std:: endl;
+    std::cout << "Starting "<< travelName << ": for algorithm" << algorithmNum << std:: endl;
 
     string shipPlanPath = travelName +  std::string(1, std::filesystem::path::preferred_separator) + "Ship Plan.txt";
     string shipRoutePath = travelName + std::string(1, std::filesystem::path::preferred_separator) + "Route.txt";
@@ -38,19 +42,16 @@ void Simulator::initSimulation (int algorithmNum, int travelNum){
     else
         cout << travelName << " was ended successfully for algorithm" << algorithmNum
         << " .The number of algorithm operations: " << algorithmActionsCounter << endl;
+    const_cast<vector<Port>&>(shipRoute.getPortsList()).clear();
+
+    clearData(this->shipPlan, this->shipRoute);
 }
 
 void Simulator::setWeightBalanceCalculator(WeightBalanceCalculator& _calculator){
     this->calculator = _calculator;
 }
 
-void clearData(ShipPlan& shipPlan, ShipRoute& shipRoute){
-    const_cast<VVVC&>(shipPlan.getContainers()).clear();
-    const_cast<vector<Port>&>(shipRoute.getPortsList()).clear();
-}
-
 void Simulator::getInput(const string& shipPlanFileName, const string& shipRouteFileName){
-    clearData(this->shipPlan, this->shipRoute);
     readShipPlan(this->shipPlan, shipPlanFileName);
     readShipRoute(this->shipRoute, shipRouteFileName);
 }

@@ -105,7 +105,6 @@ void readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName){
     ifstream shipRouteInputFile (shipPlanFileName);
     string line;
     int currPortInd = 0;
-    //list<Port> portsList;
     if (shipRouteInputFile.is_open()){
         while (getline(shipRouteInputFile,line)){
             if(isCommentOrWS(line))

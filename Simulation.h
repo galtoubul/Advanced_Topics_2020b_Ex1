@@ -13,7 +13,7 @@ class Simulator{
 public:
     static int algorithmActionsCounter;
 
-    Simulator () : shipPlan(), shipRoute() {}
+    Simulator() = delete;
 
     void initSimulation (int algorithmNum, int travelNum);
 
