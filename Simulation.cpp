@@ -2,6 +2,7 @@
 #include <iostream>
 #include <filesystem>
 #include "Simulation.h"
+
 using std::vector;
 using std::tuple;
 using std::get;
@@ -13,6 +14,7 @@ using std::endl;
 #define VALID 1
 
 int Simulator::algorithmActionsCounter;
+size_t Simulator::currPortIndex;
 
 inline void clearData(ShipPlan& shipPlan, ShipRoute& shipRoute){
     const_cast<VVVC&>(shipPlan.getContainers()).clear();
@@ -27,8 +29,9 @@ void Simulator::initSimulation (int algorithmNum, int travelNum){
     string shipRoutePath = travelName + std::string(1, std::filesystem::path::preferred_separator) + "Route.txt";
     this->getInput(shipPlanPath, shipRoutePath);
 
-    Algorithm* algorithm = Algorithm::createAlgorithm(algorithmNum);
-    algorithm->getInput(shipPlanPath, shipRoutePath);
+    Algorithm1* algorithm = new Algorithm1(); // TODO: use polymorphism
+    algorithm->readShipPlan(shipPlanPath);
+    algorithm->readShipRoute(shipRoutePath);
 
     WeightBalanceCalculator _calculator;
     algorithm->setWeightBalanceCalculator(_calculator);
@@ -51,8 +54,8 @@ void Simulator::setWeightBalanceCalculator(WeightBalanceCalculator& _calculator)
 }
 
 void Simulator::getInput(const string& shipPlanFileName, const string& shipRouteFileName){
-    readShipPlan(this->shipPlan, shipPlanFileName);
-    readShipRoute(this->shipRoute, shipRouteFileName);
+    Parser::readShipPlan(this->shipPlan, shipPlanFileName);
+    Parser::readShipRoute(this->shipRoute, shipRouteFileName);
 }
 
 int Simulator::checkLoadInstruction(int x, int y, int floor, Container* container){
@@ -66,7 +69,7 @@ int Simulator::checkLoadInstruction(int x, int y, int floor, Container* containe
     }else if (shipPlan.getContainers()[x][y][floor - 1] == nullptr){
         NOT_LEGAL_OPERATION("Loading", container->getId(), floor, x, y, "there isn't any container under the loaded container")
         return ERROR;
-    } else if (!calculator.tryOperation(LOAD, container->getWeight(), x, y) == WeightBalanceCalculator::APPROVED){
+    } else if (calculator.tryOperation('L', container->getWeight(), x, y) != WeightBalanceCalculator::APPROVED){
         NOT_LEGAL_OPERATION("Loading", container->getId(), floor, x, y, "the operation isn't approved by the weight balance calculator")
         return ERROR;
     }
@@ -84,7 +87,7 @@ int Simulator::checkUnloadInstruction(int x, int y, int floor, Container* contai
     } else if (floor != (int)shipPlan.getContainers()[x][y].size() - 1 && shipPlan.getContainers()[x][y][floor + 1] != nullptr){
         NOT_LEGAL_OPERATION("Unloading", container->getId(), floor, x, y, "there are containers above the unloaded container")
         return ERROR;
-    } else if (!calculator.tryOperation(LOAD, container->getWeight(), x, y) == WeightBalanceCalculator::APPROVED){
+    } else if (calculator.tryOperation('L', container->getWeight(), x, y) != WeightBalanceCalculator::APPROVED){
         NOT_LEGAL_OPERATION("Unloading", container->getId(), floor, x, y, "the operation isn't approved by the weight balance calculator")
         return ERROR;
     }
@@ -102,7 +105,7 @@ inline std::string& ltrim(std::string& s, const char* t = " \t\n\r\f\v")
 }
 
 int Simulator::checkAndCountAlgorithmActions(vector<Container*>& containersAwaitingAtPort, const string& outputFileName,
-                                              const string& currPortSymbol, int currPortIndex){
+                                              const string& currPortSymbol){
     vector<INSTRUCTION> instructions;
     getInstructionsForPort(outputFileName, instructions);
     for (INSTRUCTION instruction : instructions) {
@@ -113,7 +116,7 @@ int Simulator::checkAndCountAlgorithmActions(vector<Container*>& containersAwait
 
         Container *container = nullptr;
 
-            if (instructionType == LOAD){
+            if (instructionType == 'L'){
                 algorithmActionsCounter++;
                 vector<Container*> currContainersAwaitingAtPort = containersAwaitingAtPort;
                 int locInVec = -1;
@@ -133,7 +136,7 @@ int Simulator::checkAndCountAlgorithmActions(vector<Container*>& containersAwait
                     return ERROR;
                 continue;
             }
-            else if (instructionType == UNLOAD){
+            else if (instructionType == 'U'){
                 algorithmActionsCounter++;
                 container = shipPlan.getContainers()[x][y][floor];
                 if (container == nullptr) {
@@ -170,23 +173,30 @@ int Simulator::checkAndCountAlgorithmActions(vector<Container*>& containersAwait
     return VALID;
 }
 
-int Simulator::startTravel (Algorithm* algorithm, const string& travelName){
-    size_t currPortIndex = BEFORE_FIRST_PORT;
+int Simulator::startTravel (AbstractAlgorithm* algorithm, const string& travelName){
+    Simulator::currPortIndex = 0;
     Simulator::algorithmActionsCounter = 0;
     for (const Port& port : this->shipRoute.getPortsList()){
-        Algorithm::currPortIndex = ++currPortIndex;
-
+        Simulator::currPortIndex++;
         string inputFileName, outputFileName;
-        bool isFinalPort = (size_t)currPortIndex == this->shipRoute.getPortsList().size() - 1;
-        getPortFilesName(inputFileName, outputFileName, port.getPortId(), currPortIndex, travelName, isFinalPort);
+        bool isFinalPort = currPortIndex == this->shipRoute.getPortsList().size();
 
-        vector<Container*> containersAwaitingAtPort;
-        if (!isFinalPort){
-            readContainersAwaitingAtPort(inputFileName, containersAwaitingAtPort);
+        //finding portVisitNum
+        int portVisitNum = 0;
+        for (size_t i = 0; i <= Simulator::currPortIndex; ++i) {
+            if (this->shipRoute.getPortsList()[i].getPortId() == port.getPortId())
+                portVisitNum++;
         }
 
+        getPortFilesName(inputFileName, outputFileName, port.getPortId(), portVisitNum, travelName, isFinalPort);
+
+        vector<Container*> containersAwaitingAtPort;
+        // TODO: readContainersAwaitingAtPort even if final port -> and if it isn't empty mark as error
+        if (!isFinalPort)
+            readContainersAwaitingAtPort(inputFileName, containersAwaitingAtPort);
+
         algorithm->getInstructionsForCargo(inputFileName, outputFileName);
-        int status = checkAndCountAlgorithmActions(containersAwaitingAtPort, outputFileName, port.getPortId(), currPortIndex);
+        int status = checkAndCountAlgorithmActions(containersAwaitingAtPort, outputFileName, port.getPortId());
         if (status == VALID)
             continue;
     }

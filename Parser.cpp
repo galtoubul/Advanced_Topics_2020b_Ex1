@@ -34,13 +34,13 @@ void validateShipPlanLine (const string& line){
 
 int isCommentOrWS (const string& line){
     const std::regex regex("\\s*[#].*");
-    const std::regex regexWS(R"(\s*\t*\r*\n*)");
+    const std::regex regexWS(R"(\s*\t*\r*\n*)"); //TODO maybe isspace is a better choice
     if (std::regex_match(line, regex) || std::regex_match(line, regexWS))
         return COMMENT_LINE;
     return NOT_A_COMMENT_LINE;
 }
 
-void readShipPlan (ShipPlan& shipPlan, const string& shipPlanFileName){
+ void Parser::readShipPlan (ShipPlan& shipPlan, const string& shipPlanFileName){
     ifstream shipPlanInputFile(shipPlanFileName);
     vector<tuple<int, int, int>> vecForShipPlan;
     string line;
@@ -101,7 +101,7 @@ inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v")
     return ltrim(rtrim(s, t), t);
 }
 
-void readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName){
+void Parser::readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName){
     ifstream shipRouteInputFile (shipPlanFileName);
     string line;
     int currPortInd = 0;
@@ -135,10 +135,10 @@ inline bool fileExists (const std::string& fileName) {
     return f.good();
 }
 
-void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int currPortIndex, const string& travelName, bool isFinalPort){
+void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int portVisitNum, const string& travelName, bool isFinalPort){
     string str;
     inputFileName = travelName + string(1, std::filesystem::path::preferred_separator) +
-                    portId + "_" + std::to_string(currPortIndex) + ".cargo_data.txt";
+                    portId + "_" + std::to_string(portVisitNum) + ".cargo_data.txt";
     if (!fileExists(inputFileName) && !isFinalPort) {
         PORT_FILE_NAME_ISNT_MATCHING(inputFileName)
         exit (EXIT_FAILURE);
@@ -146,7 +146,7 @@ void getPortFilesName(string& inputFileName, string& outputFileName, const strin
     if (fileExists(inputFileName) && isFinalPort)
         LAST_PORT_WARNING
     outputFileName = travelName +  std::string(1, std::filesystem::path::preferred_separator) +
-                     portId + '_' + std::to_string(currPortIndex) + ".instructions_for_cargo.txt";
+                     portId + '_' + std::to_string(portVisitNum) + ".instructions_for_cargo.txt";
 }
 
 void validateContainerId (const string& line){
@@ -209,7 +209,7 @@ void writeInstructionsToFile(vector<INSTRUCTION>& instructions, ofstream& instru
 {
     for (INSTRUCTION instruction : instructions){
         instructionsForCargoFile << get<0>(instruction) <<", " << get<1>(instruction);
-        if (get<0>(instruction) == REJECT){
+        if (get<0>(instruction) == 'R'){
             instructionsForCargoFile << "\n";
             continue;
         }

@@ -11,11 +11,13 @@ using std::ifstream;
 using std::ofstream;
 using std::tuple;
 #define INSTRUCTION tuple<char,string,int,int,int>
-#define REJECT 'R'
+//#define REJECT 'R'
 
-void readShipPlan (ShipPlan& shipPlan, const string& shipPlanFileName);
+namespace Parser{
+    void readShipPlan (ShipPlan& shipPlan, const string& shipPlanFileName);
 
-void readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName);
+    void readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName);
+}
 
 void readContainersAwaitingAtPort (const string& inputFileName, vector<Container*>& containersAwaitingAtPort, bool isFinalPort = false);
 

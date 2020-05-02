@@ -1,6 +1,3 @@
-#include <tuple>
-#define UNLOAD 'U'
-#define LOAD 'L'
 #pragma once
 
 class WeightBalanceCalculator {
