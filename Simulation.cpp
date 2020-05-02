@@ -42,7 +42,6 @@ void Simulator::initSimulation (int algorithmNum, int travelNum){
     else
         cout << travelName << " was ended successfully for algorithm" << algorithmNum
         << " .The number of algorithm operations: " << algorithmActionsCounter << endl;
-    const_cast<vector<Port>&>(shipRoute.getPortsList()).clear();
 
     clearData(this->shipPlan, this->shipRoute);
 }
@@ -67,7 +66,7 @@ int Simulator::checkLoadInstruction(int x, int y, int floor, Container* containe
     }else if (shipPlan.getContainers()[x][y][floor - 1] == nullptr){
         NOT_LEGAL_OPERATION("Loading", container->getId(), floor, x, y, "there isn't any container under the loaded container")
         return ERROR;
-    } else if (!calculator.tryOperation(LOAD, container->getWeight(), x, y)){
+    } else if (!calculator.tryOperation(LOAD, container->getWeight(), x, y) == WeightBalanceCalculator::APPROVED){
         NOT_LEGAL_OPERATION("Loading", container->getId(), floor, x, y, "the operation isn't approved by the weight balance calculator")
         return ERROR;
     }
@@ -85,7 +84,7 @@ int Simulator::checkUnloadInstruction(int x, int y, int floor, Container* contai
     } else if (floor != (int)shipPlan.getContainers()[x][y].size() - 1 && shipPlan.getContainers()[x][y][floor + 1] != nullptr){
         NOT_LEGAL_OPERATION("Unloading", container->getId(), floor, x, y, "there are containers above the unloaded container")
         return ERROR;
-    } else if (!calculator.tryOperation(LOAD, container->getWeight(), x, y)){
+    } else if (!calculator.tryOperation(LOAD, container->getWeight(), x, y) == WeightBalanceCalculator::APPROVED){
         NOT_LEGAL_OPERATION("Unloading", container->getId(), floor, x, y, "the operation isn't approved by the weight balance calculator")
         return ERROR;
     }

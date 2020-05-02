@@ -1,8 +1,13 @@
 #include <tuple>
 #define UNLOAD 'U'
 #define LOAD 'L'
-class WeightBalanceCalculator{
+#pragma once
+
+class WeightBalanceCalculator {
 public:
-    WeightBalanceCalculator() {}
-    bool tryOperation(char command, int weight, int x, int y);
+    enum BalanceStatus {
+        APPROVED , X_IMBALANCED , Y_IMBALANCED , X_Y_IMBALANCED
+    };
+
+    BalanceStatus tryOperation(char loadUnload, int kg, int X, int Y);
 };

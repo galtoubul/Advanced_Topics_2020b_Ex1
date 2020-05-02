@@ -60,7 +60,7 @@ void Algorithm1::unloadToPort(Container* container, vector<INSTRUCTION>& instruc
             currFloor--;
             continue;
         }
-        if(this->calculator.tryOperation(UNLOAD, currContainer->getWeight(), x, y)){
+        if(this->calculator.tryOperation(UNLOAD, currContainer->getWeight(), x, y) == WeightBalanceCalculator::APPROVED){
             instructions.emplace_back(UNLOAD,currContainer->getId(), currFloor, x, y);
             containersToLoadBack.emplace_back(LOAD, currContainer->getId(), currFloor - 1, x, y);
             currFloor--;
@@ -114,7 +114,7 @@ void Algorithm1::loadToShip(Container* container, vector<INSTRUCTION>& instructi
                 else{
                     this->shipPlan.setContainers(x, y, floor, container); //for now put in the first free spot
                     container->setLocation(x, y, floor);
-                    if(this->calculator.tryOperation(UNLOAD, container->getWeight(), x, y)){
+                    if(this->calculator.tryOperation(UNLOAD, container->getWeight(), x, y) == WeightBalanceCalculator::APPROVED){
                         instructions.emplace_back(LOAD, container->getId(), floor, x, y);
                         (const_cast<Port&>(shipRoute.getPortsList()[findPortIndex(this->shipRoute, portDest, currPortIndex)])).addContainerToUnloadToPort(container);
                         return;
