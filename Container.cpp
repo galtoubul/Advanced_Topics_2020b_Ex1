@@ -18,6 +18,10 @@ bool Container::isFutile (){
     return futile;
 }
 
+bool Container::isRejected (){
+    return rejected;
+}
+
 tuple<int,int,int> Container::getLocation(){
     return loc;
 }

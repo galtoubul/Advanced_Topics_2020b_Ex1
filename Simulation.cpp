@@ -12,6 +12,7 @@ using std::cout;
 using std::endl;
 #define ERROR -1
 #define VALID 1
+#define CANNOTRUNTRAVEL ((1 << 3) | (1 <<4) | (1 << 7) | (1 << 8))
 
 int Simulator::algorithmActionsCounter;
 size_t Simulator::currPortIndex;
@@ -21,41 +22,71 @@ inline void clearData(ShipPlan& shipPlan, ShipRoute& shipRoute){
     const_cast<vector<Port>&>(shipRoute.getPortsList()).clear();
 }
 
-void Simulator::initSimulation (int algorithmNum, int travelNum){
+void Simulator::initSimulation (int algorithmNum, int travelNum) {
     string travelName = "Travel" + std::to_string(travelNum);
-    std::cout << "Starting "<< travelName << ": for algorithm" << algorithmNum << std:: endl;
+    std::cout << "Starting " << travelName << ": for algorithm" << algorithmNum << std::endl;
 
-    string shipPlanPath = travelName +  std::string(1, std::filesystem::path::preferred_separator) + "Ship Plan.txt";
+    errorsFileName = "output" + string(1, std::filesystem::path::preferred_separator) +
+                     "errors" + string(1, std::filesystem::path::preferred_separator) +
+                     travelName + "_" + std::to_string(algorithmNum) + ".errors.txt";
+
+
+    string shipPlanPath = travelName + std::string(1, std::filesystem::path::preferred_separator) + "Ship Plan.txt";
     string shipRoutePath = travelName + std::string(1, std::filesystem::path::preferred_separator) + "Route.txt";
-    this->getInput(shipPlanPath, shipRoutePath);
 
-    Algorithm1* algorithm = new Algorithm1(); // TODO: use polymorphism
-    algorithm->readShipPlan(shipPlanPath);
-    algorithm->readShipRoute(shipRoutePath);
+    int travelErrors = this->getInput(shipPlanPath, shipRoutePath);
 
-    WeightBalanceCalculator _calculator;
-    algorithm->setWeightBalanceCalculator(_calculator);
-    setWeightBalanceCalculator(_calculator);
+    if ((CANNOTRUNTRAVEL & travelErrors) != 0) {
+        ofstream errorsFile(errorsFileName);
+        for (int i = 1; i <= (1 << 18); i *= 2) {
+            if ((i & travelErrors) > 0) {
+                //errorsFile << errorsDict(i) << "\n";
+            }
+        }
+        errorsFile.close();
+        //TODO: finish travel
+    }
 
-    int status = startTravel(algorithm, travelName);
+    Algorithm1 *algorithm = new Algorithm1(); // TODO: use polymorphism
+    int errorsOfAlgorithm = 0;
+    errorsOfAlgorithm |= algorithm->readShipPlan(shipPlanPath);
+    errorsOfAlgorithm |= algorithm->readShipRoute(shipRoutePath);
 
-    if (status == ERROR)
-        cout << travelName << " was ended with an error for algorithm" << algorithmNum
-        << " .The number of algorithm operations: " << algorithmActionsCounter << endl;
-    else
-        cout << travelName << " was ended successfully for algorithm" << algorithmNum
-        << " .The number of algorithm operations: " << algorithmActionsCounter << endl;
+    if (errorsOfAlgorithm != 0) {
+        ofstream errorsFile(errorsFileName);
+        for (int i = 1; i <= (1 << 18); i *= 2) {
+            if ((i & errorsOfAlgorithm) > 0) {
+                //errorsFile << errorsDict(i) << "\n";
+            }
+        }
 
-    clearData(this->shipPlan, this->shipRoute);
+
+        WeightBalanceCalculator _calculator;
+        algorithm->setWeightBalanceCalculator(_calculator);
+        setWeightBalanceCalculator(_calculator);
+
+        int status = startTravel(algorithm, travelName);
+//TODO: change to use errors codes
+        if (status == ERROR)
+            cout << travelName << " was ended with an error for algorithm" << algorithmNum
+                 << " .The number of algorithm operations: " << algorithmActionsCounter << endl;
+        else
+            cout << travelName << " was ended successfully for algorithm" << algorithmNum
+                 << " .The number of algorithm operations: " << algorithmActionsCounter << endl;
+
+        clearData(this->shipPlan, this->shipRoute);
+    }
 }
 
 void Simulator::setWeightBalanceCalculator(WeightBalanceCalculator& _calculator){
     this->calculator = _calculator;
 }
 
-void Simulator::getInput(const string& shipPlanFileName, const string& shipRouteFileName){
-    Parser::readShipPlan(this->shipPlan, shipPlanFileName);
-    Parser::readShipRoute(this->shipRoute, shipRouteFileName);
+int Simulator::getInput(const string& shipPlanFileName, const string& shipRouteFileName){
+    int errors = 0;
+    errors |= Parser::readShipPlan(this->shipPlan, shipPlanFileName);
+    errors |= Parser::readShipRoute(this->shipRoute, shipRouteFileName);
+    return errors;
 }
 
 int Simulator::checkLoadInstruction(int x, int y, int floor, Container* container){
@@ -115,8 +146,9 @@ int Simulator::checkAndCountAlgorithmActions(vector<Container*>& containersAwait
         std::tie(instructionType, containerId, floor, x, y) = instruction;
 
         Container *container = nullptr;
-
-            if (instructionType == 'L'){
+            if (instructionType == 'R')
+                continue;
+            else if (instructionType == 'L'){
                 algorithmActionsCounter++;
                 vector<Container*> currContainersAwaitingAtPort = containersAwaitingAtPort;
                 int locInVec = -1;
@@ -129,7 +161,7 @@ int Simulator::checkAndCountAlgorithmActions(vector<Container*>& containersAwait
                 }
                 containersAwaitingAtPort.erase(containersAwaitingAtPort.begin()+locInVec);
                 if (container == nullptr) {
-                    NOT_LEGAL_OPERATION("Loading", containerId, floor, x, y,"this container isn't exist at " + currPortSymbol)
+                  //  writeNotLegalOperation(NOT_LEGAL_OPERATION("Loading", containerId, floor, x, y,"this container isn't exist at " + currPortSymbol));
                     return ERROR;
                 }
                 if (checkLoadInstruction(x, y, floor, container) == ERROR)
@@ -173,10 +205,18 @@ int Simulator::checkAndCountAlgorithmActions(vector<Container*>& containersAwait
     return VALID;
 }
 
-int Simulator::startTravel (AbstractAlgorithm* algorithm, const string& travelName){
+
+void Simulator::writeNotLegalOperation(const string&){
+        //TODO: write func
+    }
+
+
+
+int Simulator::startTravel (AbstractAlgorithm* algorithm, const string& travelName) {
     Simulator::currPortIndex = 0;
     Simulator::algorithmActionsCounter = 0;
-    for (const Port& port : this->shipRoute.getPortsList()){
+    int errors = 0;
+    for (const Port &port : this->shipRoute.getPortsList()) {
         Simulator::currPortIndex++;
         string inputFileName, outputFileName;
         bool isFinalPort = currPortIndex == this->shipRoute.getPortsList().size();
@@ -190,17 +230,26 @@ int Simulator::startTravel (AbstractAlgorithm* algorithm, const string& travelNa
 
         getPortFilesName(inputFileName, outputFileName, port.getPortId(), portVisitNum, travelName, isFinalPort);
 
-        vector<Container*> containersAwaitingAtPort;
-        // TODO: readContainersAwaitingAtPort even if final port -> and if it isn't empty mark as error
-        if (!isFinalPort)
-            readContainersAwaitingAtPort(inputFileName, containersAwaitingAtPort);
+        vector<Container *> containersAwaitingAtPort;
+        readContainersAwaitingAtPort(inputFileName, containersAwaitingAtPort, isFinalPort, shipPlan, shipRoute,
+                                     currPortIndex);
 
-        algorithm->getInstructionsForCargo(inputFileName, outputFileName);
+        errors |= algorithm->getInstructionsForCargo(inputFileName, outputFileName);
         int status = checkAndCountAlgorithmActions(containersAwaitingAtPort, outputFileName, port.getPortId());
+        //TODO: make errors and errors of algorithm, when to dsop when to continue
         if (status == VALID)
             continue;
+        else if (errors != 0) {
+            ofstream errorsFile(errorsFileName);
+            for (int i = 1; i <= (1 << 18); i *= 2) {
+                if ((i & errors) > 0) {
+                    //errorsFile << errorsDict(i) << "\n";
+                }
+            }
+            errorsFile.close();
+        }
     }
-    return VALID;
+        return VALID;
 }
 
 const ShipPlan& Simulator::getShipPlan () const{

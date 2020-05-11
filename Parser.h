@@ -14,13 +14,14 @@ using std::tuple;
 //#define REJECT 'R'
 
 namespace Parser{
-    void readShipPlan (ShipPlan& shipPlan, const string& shipPlanFileName);
+    int readShipPlan (ShipPlan& shipPlan, const string& shipPlanFileName);
 
-    void readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName);
+    int readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName);
 }
 
-void readContainersAwaitingAtPort (const string& inputFileName, vector<Container*>& containersAwaitingAtPort, bool isFinalPort = false);
+int readContainersAwaitingAtPort (const string& inputFileName, vector<Container*>& containersAwaitingAtPort, bool isFinalPort, const ShipPlan& shipPlan, const ShipRoute& shipRoute, int currPortIndex);
 
+void writeInstructionsToFile(vector<INSTRUCTION>& instructions, ofstream& instructionsForCargoFile);
 void writeInstructionsToFile(vector<INSTRUCTION>& instructions, ofstream& instructionsForCargoFile);
 
 void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int currPortIndex, const string& travelName, bool isFinalPort);

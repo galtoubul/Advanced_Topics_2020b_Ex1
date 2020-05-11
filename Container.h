@@ -26,11 +26,12 @@ class Container{
     string id;
     bool futile;
     tuple<int,int,int> loc;
+    bool rejected;
 
 public:
-    Container(int _weight = 0, const string& _destination = "", const string& _id = "", bool _futile = true,
+    Container(int _weight = 0, const string& _destination = "", const string& _id = "", bool _futile = true, bool _rejected = false,
               int _x = NOT_ON_SHIP, int _y = NOT_ON_SHIP, int _floorNum = NOT_ON_SHIP) :
-            weight(_weight), destination(_destination), id(_id), futile(_futile), loc(std::make_tuple(_x, _y, _floorNum)) {}
+            weight(_weight), destination(_destination), id(_id), futile(_futile), loc(std::make_tuple(_x, _y, _floorNum)), rejected(_rejected) {}
 
     explicit Container (const Container* other) :
             weight(other->weight), destination(other->destination), id(other->id), futile(other->futile), loc(other->loc) {}
@@ -42,6 +43,8 @@ public:
     string getId () const;
 
     bool isFutile ();
+
+    bool isRejected ();
 
     tuple<int,int,int> getLocation();
 

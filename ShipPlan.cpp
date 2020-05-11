@@ -1,18 +1,18 @@
 #include "ShipPlan.h"
 
-int ShipPlan::getFloorsNum(){
+int ShipPlan::getFloorsNum() const{
     return floorsNum;
 }
 
-int ShipPlan::getPivotXDimension(){
+int ShipPlan::getPivotXDimension() const {
     return dimX;
 }
 
-int ShipPlan::getPivotYDimension(){
+int ShipPlan::getPivotYDimension() const{
     return dimY;
 }
 
-const VVVC& ShipPlan::getContainers() {
+const VVVC& ShipPlan::getContainers() const{
     return this->containers;
 }
 

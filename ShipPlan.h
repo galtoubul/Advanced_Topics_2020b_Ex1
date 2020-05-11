@@ -22,13 +22,13 @@ public:
 
     ShipPlan(const ShipPlan& other) = delete;
 
-    int getFloorsNum();
+    int getFloorsNum() const;
 
-    int getPivotXDimension();
+    int getPivotXDimension() const;
 
-    int getPivotYDimension();
+    int getPivotYDimension() const;
 
-    const VVVC& getContainers();
+    const VVVC& getContainers() const;
 
     void setContainers(int x, int y, int floor, Container* container);
 

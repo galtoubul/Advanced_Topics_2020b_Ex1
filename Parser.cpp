@@ -24,12 +24,15 @@ void split(vector<string>& elems, const string &s, char delim) {
     }
 }
 
-void validateShipPlanLine (const string& line){
+
+bool isShipPlanLineValid (const string& line){ //TODO: check limits
     const std::regex regex("\\s*[0-9]\\s*[,]\\s*[0-9]\\s*[,]\\s*[0-9]\\s*");
     if (!(std::regex_match(line, regex))){
         INVALID_INPUT("ship plan")
-        exit(EXIT_FAILURE);
+        return false;
+        //exit(EXIT_FAILURE);
     }
+    return true;
 }
 
 int isCommentOrWS (const string& line){
@@ -40,45 +43,96 @@ int isCommentOrWS (const string& line){
     return NOT_A_COMMENT_LINE;
 }
 
- void Parser::readShipPlan (ShipPlan& shipPlan, const string& shipPlanFileName){
+ int Parser::readShipPlan (ShipPlan& shipPlan, const string& shipPlanFileName){
+    int errors = 0;
     ifstream shipPlanInputFile(shipPlanFileName);
     vector<tuple<int, int, int>> vecForShipPlan;
     string line;
-    if (shipPlanInputFile.is_open()) {
+     int floorsNum, dimX, dimY;
+
+     if (shipPlanInputFile.is_open()) {
+        while (getline(shipPlanInputFile, line)) { //validating first line, if the format is ok we will continue
+            if (isCommentOrWS(line))
+                continue;
+            if(!isShipPlanLineValid(line)){
+                errors |= (1 << 3);
+                return errors;
+            } else{
+                vector<string> temp;
+                split(temp, line, ',');
+                floorsNum = stoi(temp[0]);
+                dimX = stoi(temp[1]);
+                dimY = stoi(temp[2]);
+                break;
+            }
+        }
         while (getline(shipPlanInputFile, line)) {
             if(isCommentOrWS(line))
                 continue;
 
-            validateShipPlanLine(line);
+            if(!isShipPlanLineValid(line)){
+                errors |= (1 << 2);
+                continue;
+            }
+
             vector<string> temp;
             split(temp, line, ',');
+
+            bool isDuplicateAppearanceWithSameData  = false;
+            for(tuple<int, int, int> data : vecForShipPlan){
+                if (stoi(temp[0]) == get<0>(data) && stoi(temp[1]) == get<1>(data)){
+                    if (stoi(temp[2]) != get<2>(data)){
+                        errors |= (1 << 4);
+                        return errors;                    }
+                    else {
+                        errors |= (1 << 2);
+                        isDuplicateAppearanceWithSameData = true;
+                        break;
+                    }
+                }
+            }
+            if (isDuplicateAppearanceWithSameData)
+                continue;
+
             vecForShipPlan.emplace_back(stoi(temp[0]), stoi(temp[1]), stoi(temp[2]));
         }
         shipPlanInputFile.close();
     } else{
         UNABLE_TO_OPEN_FILE(shipPlanFileName)
-        exit(EXIT_FAILURE);
+        errors |= (1 << 3);
+        return errors;
+        //exit(EXIT_FAILURE);
     }
-    int floorsNum, dimX, dimY;
-    std::tie(floorsNum, dimX, dimY) = vecForShipPlan[0];
+
     shipPlan = ShipPlan(dimX, dimY, floorsNum);
 
     for (size_t i = 1; i < vecForShipPlan.size(); ++i) {
         int blockedFloors = floorsNum - get<2>(vecForShipPlan[i]);
+        if (blockedFloors <= 0){
+            errors |= (1 << 0);
+            continue;
+        }
+        if (get<0>(vecForShipPlan[i]) >= dimX || get<1>(vecForShipPlan[i]) >= dimY){
+            errors |= (1 << 1);
+            continue;
+        }
         for (int j = 0; j < blockedFloors; j++){
             Container* futileContainer = new Container();
             shipPlan.setContainers(get<0>(vecForShipPlan[i]), get<1>(vecForShipPlan[i]), j, futileContainer);
         }
     }
+    return errors;
 }
 
-void checkIfValidPortId(string port){
+int checkIfValidPortId(string port){
     //have to be in model of: XX XXX - size 6
     const std::regex regex("\\s*[a-zA-z]{2}[ ][a-zA-z]{3}\\s*");
     if (!(std::regex_match(port, regex))){
         NON_LEGAL_SEA_PORT_CODE(port)
-        exit(EXIT_FAILURE);
+        return (1 << 13); // error code for "containers at port"
+        //exit(EXIT_FAILURE);
     }
+    return 0;
 }
 
 // trim white spaces from left
@@ -101,7 +155,8 @@ inline std::string& trim(std::string& s, const char* t = " \t\n\r\f\v")
     return ltrim(rtrim(s, t), t);
 }
 
-void Parser::readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName){
+int Parser::readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName){
+    int errors = 0;
     ifstream shipRouteInputFile (shipPlanFileName);
     string line;
     int currPortInd = 0;
@@ -111,13 +166,19 @@ void Parser::readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName)
                 continue;
 
             line = trim(line);
-            checkIfValidPortId(line); //have to be in model of: XX XXX - size 6
+            if (checkIfValidPortId(line) != 0){ //have to be in model of: XX XXX - size 6
+                errors |= (1 << 6);
+                continue;
+            }
+
             std::transform(line.begin(), line.end(), line.begin(), [](unsigned char c){ return std::toupper(c);});
 
             //the same port can't appear in two consecutive lines
             if(!shipRoute.getPortsList().empty() && line == shipRoute.getPortsList()[currPortInd - 1].getPortId()){
                 SAME_PORT_AS_PREV
-                exit(EXIT_FAILURE);
+                errors |= (1 << 5);
+                //exit(EXIT_FAILURE);
+                continue;
             }
 
             shipRoute.addPort(line);
@@ -126,8 +187,17 @@ void Parser::readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName)
     }
     else{
         UNABLE_TO_OPEN_FILE(shipPlanFileName)
-        exit(EXIT_FAILURE);
+        errors |= (1 << 7);
+        //exit(EXIT_FAILURE);
     }
+
+    if (shipRoute.getPortsList().empty())
+        errors |= (1 << 7);
+
+    if (shipRoute.getPortsList().size() == 1)
+        errors |= (1 << 8);
+
+    return errors;
 }
 
 inline bool fileExists (const std::string& fileName) {
@@ -149,60 +219,100 @@ void getPortFilesName(string& inputFileName, string& outputFileName, const strin
                      portId + '_' + std::to_string(portVisitNum) + ".instructions_for_cargo.txt";
 }
 
-void validateContainerId (const string& line){
+int validateContainerId (const string& line){
     const std::regex regex("\\s*[A-Z]{3}[UJZ][0-9]{7}\\s*");
     if (!(std::regex_match(line, regex))){
         CONTAINER_ERROR("id")
-        exit(EXIT_FAILURE);
+        return (1 << 14);
+        //exit(EXIT_FAILURE);
     }
+    return 0;
 }
 
-void validateWeight (const string& line){
+int validateWeight (const string& line){
     const std::regex regex("\\s*[0-9]*\\s*");
     if (!(std::regex_match(line, regex))){
         CONTAINER_ERROR("weight")
-        exit(EXIT_FAILURE);
+        return (1 << 12);
+        //exit(EXIT_FAILURE);
     }
+    return 0;
 }
 
-bool validateContainersAwaitingAtPortLine (vector<string>& line) {
+int validateContainersAwaitingAtPortLine (vector<string>& line) {
     if (line.size() != 3) {
         INVALID_INPUT("Containers awaiting at port")
-        exit(EXIT_FAILURE);
+        //TODO: check relevant code
+        //exit(EXIT_FAILURE);
     }
     for (int i = 0; i < 3; ++i)
         trim(line[i]);
-    validateContainerId(line[0]);
-    validateWeight(line[1]);
-    checkIfValidPortId(line[2]);
+    return (validateContainerId(line[0]) | validateWeight(line[1]) | checkIfValidPortId(line[2]));
  //   return portInRoute(shipRoute, line[2]);
-    return true;
 }
 
-void readContainersAwaitingAtPort (const string& inputFileName, vector<Container*>& containersAwaitingAtPort, bool isFinalPort){
+int readContainersAwaitingAtPort (const string& inputFileName, vector<Container*>& containersAwaitingAtPort, bool isFinalPort,
+                    const ShipPlan& shipPlan, const ShipRoute& shipRoute, int currPortIndex){
+    int errors = 0;
     ifstream inputFile (inputFileName);
     string line;
+    bool rejected = false;
     if (inputFile.is_open()){
+        if (isFinalPort) {
+            errors |= (1 << 17);
+            return errors;
+        }
         while (getline(inputFile, line)){
             vector<string> temp;
             split(temp, line, ',');
             if(isCommentOrWS(line))
                 continue;
 
-            if(!validateContainersAwaitingAtPortLine(temp))
-                continue;
-
             //port id to uppercase
             std::transform(temp[2].begin(), temp[2].end(), temp[2].begin(),
                            [](unsigned char c){ return std::toupper(c);});
-            containersAwaitingAtPort.push_back(new Container(stoi(temp[1]), temp[2], temp[0], false));
+
+            //check duplicate ID on port
+            for (Container* container : containersAwaitingAtPort){
+                if (container->getId().compare(temp[0]) == 0){
+                    errors |= (1 << 10);
+                    rejected = true;
+                }
+            }
+
+            int validation = validateContainersAwaitingAtPortLine(temp);
+            if(validation != 0){
+                errors |= validation;
+                rejected = true;
+            }
+
+            if (findPortIndex(shipRoute, temp[2], currPortIndex) == NOT_IN_ROUTE) {
+               errors |= (1 << 13);
+                rejected = true;
+            }
+
+            for (int x = 0; x < shipPlan.getPivotXDimension(); x++) {
+                for (int y = 0; y < shipPlan.getPivotYDimension(); y++) {
+                    for (int floor = 0; floor < shipPlan.getFloorsNum(); floor++) {
+                        if (shipPlan.getContainers()[x][y][floor] != nullptr && !shipPlan.getContainers()[x][y][floor]->isFutile()
+                                    && shipPlan.getContainers()[x][y][floor]->getId().compare(temp[0]) == 0) {
+                            errors|= (1 << 11);
+                            rejected = true;
+                        }
+                    }
+                }
+            }
+
+            containersAwaitingAtPort.push_back(new Container(stoi(temp[1]), temp[2], temp[0], false, rejected));
         }
         inputFile.close();
     }
     else if (!isFinalPort){
         UNABLE_TO_OPEN_FILE(inputFileName)
-        exit(EXIT_FAILURE);
+        errors |= (1 << 16);
+        //exit(EXIT_FAILURE);
     }
+    return errors;
 }
 
 void writeInstructionsToFile(vector<INSTRUCTION>& instructions, ofstream& instructionsForCargoFile)
