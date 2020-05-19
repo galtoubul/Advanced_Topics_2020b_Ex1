@@ -2,7 +2,7 @@
 #include <tuple>
 #include <iostream>
 #include "Simulation.h"
-#include "ErrorsInterface.h"
+
 using std::cout;
 using std::cin;
 using std::endl;
@@ -29,6 +29,8 @@ int main() {
     do{
         cin >> travelsNum;
     } while (check(travelsNum, "travels") == NOT_LEGAL);
+
+    ErrorsInterface::populateErrorsMap();
 
     Simulator simulator;
 

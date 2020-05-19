@@ -24,7 +24,7 @@ int readContainersAwaitingAtPort (const string& inputFileName, vector<Container*
 void writeInstructionsToFile(vector<INSTRUCTION>& instructions, ofstream& instructionsForCargoFile);
 void writeInstructionsToFile(vector<INSTRUCTION>& instructions, ofstream& instructionsForCargoFile);
 
-void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int currPortIndex, const string& travelName, bool isFinalPort);
+void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int portVisitNum, const string& travelName);
 
 int findPortIndex(const ShipRoute& shipRoute, const string& portSymbol, int currPortIndex);
 

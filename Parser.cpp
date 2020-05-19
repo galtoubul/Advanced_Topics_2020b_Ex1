@@ -28,7 +28,7 @@ void split(vector<string>& elems, const string &s, char delim) {
 bool isShipPlanLineValid (const string& line){ //TODO: check limits
     const std::regex regex("\\s*[0-9]\\s*[,]\\s*[0-9]\\s*[,]\\s*[0-9]\\s*");
     if (!(std::regex_match(line, regex))){
-        INVALID_INPUT("ship plan")
+     //   INVALID_INPUT("ship plan")
         return false;
         //exit(EXIT_FAILURE);
     }
@@ -98,7 +98,7 @@ int isCommentOrWS (const string& line){
         }
         shipPlanInputFile.close();
     } else{
-        UNABLE_TO_OPEN_FILE(shipPlanFileName)
+ //       UNABLE_TO_OPEN_FILE(shipPlanFileName)
         errors |= (1 << 3);
         return errors;
         //exit(EXIT_FAILURE);
@@ -128,7 +128,7 @@ int checkIfValidPortId(string port){
     //have to be in model of: XX XXX - size 6
     const std::regex regex("\\s*[a-zA-z]{2}[ ][a-zA-z]{3}\\s*");
     if (!(std::regex_match(port, regex))){
-        NON_LEGAL_SEA_PORT_CODE(port)
+   //     NON_LEGAL_SEA_PORT_CODE(port)
         return (1 << 13); // error code for "containers at port"
         //exit(EXIT_FAILURE);
     }
@@ -175,7 +175,7 @@ int Parser::readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName){
 
             //the same port can't appear in two consecutive lines
             if(!shipRoute.getPortsList().empty() && line == shipRoute.getPortsList()[currPortInd - 1].getPortId()){
-                SAME_PORT_AS_PREV
+     //           SAME_PORT_AS_PREV
                 errors |= (1 << 5);
                 //exit(EXIT_FAILURE);
                 continue;
@@ -186,7 +186,7 @@ int Parser::readShipRoute(ShipRoute& shipRoute, const string& shipPlanFileName){
         shipRouteInputFile.close();
     }
     else{
-        UNABLE_TO_OPEN_FILE(shipPlanFileName)
+     //   UNABLE_TO_OPEN_FILE(shipPlanFileName)
         errors |= (1 << 7);
         //exit(EXIT_FAILURE);
     }
@@ -205,16 +205,20 @@ inline bool fileExists (const std::string& fileName) {
     return f.good();
 }
 
-void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int portVisitNum, const string& travelName, bool isFinalPort){
+void getPortFilesName(string& inputFileName, string& outputFileName, const string& portId, const int portVisitNum, const string& travelName){
     string str;
     inputFileName = travelName + string(1, std::filesystem::path::preferred_separator) +
                     portId + "_" + std::to_string(portVisitNum) + ".cargo_data.txt";
-    if (!fileExists(inputFileName) && !isFinalPort) {
+
+    // In this stage we just need the names, not validation therefore we delete this:
+
+   /* if (!fileExists(inputFileName) && !isFinalPort) {
         PORT_FILE_NAME_ISNT_MATCHING(inputFileName)
         exit (EXIT_FAILURE);
-    }
-    if (fileExists(inputFileName) && isFinalPort)
-        LAST_PORT_WARNING
+    }*/
+    //if (fileExists(inputFileName) && isFinalPort)
+     //   LAST_PORT_WARNING
+
     outputFileName = travelName +  std::string(1, std::filesystem::path::preferred_separator) +
                      portId + '_' + std::to_string(portVisitNum) + ".instructions_for_cargo.txt";
 }
@@ -222,7 +226,7 @@ void getPortFilesName(string& inputFileName, string& outputFileName, const strin
 int validateContainerId (const string& line){
     const std::regex regex("\\s*[A-Z]{3}[UJZ][0-9]{7}\\s*");
     if (!(std::regex_match(line, regex))){
-        CONTAINER_ERROR("id")
+    //    CONTAINER_ERROR("id")
         return (1 << 14);
         //exit(EXIT_FAILURE);
     }
@@ -232,7 +236,7 @@ int validateContainerId (const string& line){
 int validateWeight (const string& line){
     const std::regex regex("\\s*[0-9]*\\s*");
     if (!(std::regex_match(line, regex))){
-        CONTAINER_ERROR("weight")
+    //    CONTAINER_ERROR("weight")
         return (1 << 12);
         //exit(EXIT_FAILURE);
     }
@@ -308,8 +312,8 @@ int readContainersAwaitingAtPort (const string& inputFileName, vector<Container*
         inputFile.close();
     }
     else if (!isFinalPort){
-        UNABLE_TO_OPEN_FILE(inputFileName)
-        errors |= (1 << 16);
+     //   UNABLE_TO_OPEN_FILE(inputFileName)
+        errors |= (1 << 16); // "assuming no cargo to be loaded at this port" - we will get an empty vector and that's ok
         //exit(EXIT_FAILURE);
     }
     return errors;
@@ -363,6 +367,7 @@ void getInstructionsForPort(const string& outputFileName, vector<INSTRUCTION>& i
         }
         outputFile.close();
     } else {
+        //TODO: check what to do in this situation
         UNABLE_TO_OPEN_FILE(outputFileName)
         exit(EXIT_FAILURE);
     }
